@@ -172,7 +172,7 @@
       if (fontSize < 17) fontSize = 17;
       for (let i = 0; i < this.row; i++) {
         this.table.appendChild(tag('tr', {
-          attrs: { 'data-index': i }, children: Array(this.column).keys().map(j => {
+          attrs: { 'data-index': i }, children: [...Array(this.column).keys()].map(j => {
             return tag('td', { class: 'cell', style: `width: ${tdw};height: ${tdw}px; font-size: ${fontSize}px`, attrs: { 'data-index': this.column * i + j } });
           })
         }))
