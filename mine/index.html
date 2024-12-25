@@ -1,0 +1,251 @@
+<html>
+
+<head>
+  <title>扫雷</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <script src="index.js"></script>
+  <style>
+    *,
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      width: 100%;
+      color: white;
+      font-size: 20px;
+    }
+
+    .game_container {
+      position: relative;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 5px 35px;
+      background-color: #FF8AAC;
+      border: 2px solid #f46891;
+      border-radius: 10px;
+      margin-top: 20px;
+      overflow: visible;
+    }
+
+    .game_table {
+      background-color: #f6a2ff;
+      border-radius: 5px;
+      background-image: url(120848579_p0.png);
+      background-repeat: 0;
+      background-position: 0;
+      background-size: cover;
+      border-spacing: 0;
+      border: 2px solid white;
+    }
+
+    .game_table tr {
+      margin: 0;
+      min-width: 15px;
+    }
+
+    .game_table .cell {
+      position: relative;
+      background-color: #FF8AAC;
+      margin: 0;
+      border: 2px solid transparent;
+      color: #FF8AAC;
+      font-size: 17px;
+      text-align: center;
+      user-select: none !important;
+      transition: all .3s;
+      -webkit-text-stroke: 1px #FF8AAC;
+    }
+
+    .game_table .cell:hover {
+      border-color: white;
+    }
+
+    .game_table .cell::after {
+      width: 100%;
+      height: 100%;
+      color: white;
+      font-size: 28px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .game_table .cell.star::after {
+      content: '★';
+    }
+
+    .game_table .cell.flag::after {
+      content: '▲';
+    }
+
+    .game_table .cell.boom::after {
+      color: red;
+    }
+
+    .game_table .cell.open {
+      background-color: transparent;
+    }
+
+    .top_controls .win {
+      position: absolute;
+      left: 4px;
+      top: 0px;
+    }
+
+    .top_controls .reset {
+      position: absolute;
+      right: 4px;
+      top: 0px;
+    }
+
+    .tip_wrap {
+      width: 100%;
+      position: relative;
+    }
+
+    .tip_wrap .tip {
+      margin: 0 auto;
+      width: fit-content;
+      height: 27px;
+    }
+
+    .time_wrap {
+      width: 100%;
+      position: relative;
+    }
+
+    .time_wrap .time {
+      margin: 0 auto;
+      width: fit-content;
+      height: 27px;
+      line-height: 30px;
+    }
+
+    .mine_left_wrap {
+      position: absolute;
+      bottom: 4px;
+    }
+
+    .bottom_controls .settings {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+    }
+
+    .settings_form {
+      display: none;
+      position: absolute;
+      right: 10px;
+      bottom: 40px;
+      border: 2px solid #fff;
+      background-color: #FF8AAC;
+      padding: 15px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: opacity .5s;
+    }
+
+    .settings_form.on {
+      display: block;
+      opacity: 1;
+    }
+
+    .settings_form .input {
+      display: block;
+    }
+
+    .settings_form .input input {
+      width: 70px;
+      height: 20px;
+      line-height: 20px;
+      border: none;
+      outline: none;
+      background: white;
+      border-radius: 2px;
+      padding-left: 5px;
+      font-size: 17px;
+    }
+
+    .settings_form button {
+      margin-top: 5px;
+      padding: 2px 10px;
+      background: #ffffff;
+      border: 2px solid #FF8AAC;
+      outline: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="game_container">
+      <div class="top_controls">
+        <div class="tip_wrap">
+          <div class="tip"></div>
+        </div>
+        <div class="win">
+          <svg t="1735104145191" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="5374" width="30" height="30">
+            <path
+              d="M781.226667 238.506667V180.906667c0-26.88-21.76-49.066667-49.066667-49.066667h-430.933333c-26.88 0-49.066667 21.76-49.066667 49.066667v55.466666C179.626667 248.32 123.733333 311.893333 123.733333 387.84c0 83.626667 67.413333 151.893333 150.613334 153.6 40.96 93.44 133.973333 158.72 242.346666 158.72 108.8 0 201.813333-65.706667 242.773334-159.146667 78.506667-6.4 140.8-72.96 140.8-153.173333 0-72.533333-51.2-133.546667-119.04-149.333333zM192 387.84c0-38.4 25.6-70.826667 60.16-81.493333v133.546666c0 10.24 0.853333 20.053333 2.133333 29.866667-35.84-9.386667-62.293333-42.666667-62.293333-81.92z m450.986667-1.28l-49.493334 51.2 11.52 72.106667c3.84 24.746667-9.386667 34.133333-30.293333 22.613333l-61.013333-36.266667-61.013334 34.133334c-20.906667 11.52-34.133333 1.706667-30.293333-22.613334l11.52-72.106666-49.493333-51.2c-17.066667-17.066667-11.52-34.133333 11.52-37.973334l68.266666-9.386666 30.293334-62.72c9.386667-22.613333 26.453333-22.613333 37.973333 0l30.293333 64.426666 68.266667 9.386667c23.466667 4.266667 29.013333 21.333333 11.946667 38.4z m136.533333 80.213333c0.853333-8.96 1.706667-17.493333 1.706667-26.453333V310.186667c29.866667 13.226667 50.773333 43.093333 50.773333 78.08 0 34.986667-21.76 65.706667-52.48 78.506666zM640 892.16H384c-18.773333 0-34.133333-15.36-34.133333-34.133333s15.36-34.133333 34.133333-34.133334h256c18.773333 0 34.133333 15.36 34.133333 34.133334s-15.36 34.133333-34.133333 34.133333z"
+              fill="#ffffff" p-id="5375"></path>
+            <path d="M477.866667 689.493333h68.266666v153.6h-68.266666z" fill="#ffffff" p-id="5376"></path>
+          </svg>
+        </div>
+        <div class="reset">
+          <svg t="1735104334260" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="7391" width="30" height="30">
+            <path
+              d="M832 556.8c0 179.2-140.8 320-320 320s-320-140.8-320-320 140.8-320 320-320l0 57.6c0 12.8 19.2 25.6 25.6 12.8l96-96C640 204.8 640 192 633.6 185.6L537.6 89.6C531.2 83.2 512 89.6 512 102.4l0 70.4c-211.2 0-384 172.8-384 384s172.8 384 384 384 384-172.8 384-384L832 556.8z"
+              p-id="7392" fill="#ffffff"></path>
+          </svg>
+        </div>
+      </div>
+      <table class="game_table"></table>
+      <div class="bottom_controls">
+        <div class="time_wrap">
+          <div class="time">00:00</div>
+        </div>
+        <div class="mine_left_wrap">
+          <span style="font-size: 25px;">★</span>
+          <span class="mine_left"></span>
+        </div>
+        <div class="settings">
+          <svg t="1735108553622" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="4463" width="30" height="30">
+            <path
+              d="M919.6 405.6l-57.2-8c-12.7-1.8-23-10.4-28-22.1-11.3-26.7-25.7-51.7-42.9-74.5-7.7-10.2-10-23.5-5.2-35.3l21.7-53.5c6.7-16.4 0.2-35.3-15.2-44.1L669.1 96.6c-15.4-8.9-34.9-5.1-45.8 8.9l-35.4 45.3c-7.9 10.2-20.7 14.9-33.5 13.3-14-1.8-28.3-2.8-42.8-2.8-14.5 0-28.8 1-42.8 2.8-12.8 1.6-25.6-3.1-33.5-13.3l-35.4-45.3c-10.9-14-30.4-17.8-45.8-8.9L230.4 168c-15.4 8.9-21.8 27.7-15.2 44.1l21.7 53.5c4.8 11.9 2.5 25.1-5.2 35.3-17.2 22.8-31.7 47.8-42.9 74.5-5 11.8-15.3 20.4-28 22.1l-57.2 8C86 408 72.9 423 72.9 440.8v142.9c0 17.7 13.1 32.7 30.6 35.2l57.2 8c12.7 1.8 23 10.4 28 22.1 11.3 26.7 25.7 51.7 42.9 74.5 7.7 10.2 10 23.5 5.2 35.3l-21.7 53.5c-6.7 16.4-0.2 35.3 15.2 44.1L354 927.8c15.4 8.9 34.9 5.1 45.8-8.9l35.4-45.3c7.9-10.2 20.7-14.9 33.5-13.3 14 1.8 28.3 2.8 42.8 2.8 14.5 0 28.8-1 42.8-2.8 12.8-1.6 25.6 3.1 33.5 13.3l35.4 45.3c10.9 14 30.4 17.8 45.8 8.9l123.7-71.4c15.4-8.9 21.8-27.7 15.2-44.1l-21.7-53.5c-4.8-11.8-2.5-25.1 5.2-35.3 17.2-22.8 31.7-47.8 42.9-74.5 5-11.8 15.3-20.4 28-22.1l57.2-8c17.6-2.5 30.6-17.5 30.6-35.2V440.8c0.2-17.8-12.9-32.8-30.5-35.2z m-408 245.5c-76.7 0-138.9-62.2-138.9-138.9s62.2-138.9 138.9-138.9 138.9 62.2 138.9 138.9-62.2 138.9-138.9 138.9z"
+              fill="#ffffff" p-id="4464"></path>
+          </svg>
+        </div>
+      </div>
+      <form class="settings_form">
+        <button type="button" class="difficulty" value="0">简单</button>
+        <button type="button" class="difficulty" value="1">普通</button><br>
+        <button type="button" class="difficulty" value="2">困难</button>
+        <button type="button" class="difficulty" value="3">全屏</button><br>
+        <label class="input">
+          <span>行数</span>
+          <input type="number" name="row" min="5" max="100" value="9">
+        </label>
+        <label class="input">
+          <span>列数</span>
+          <input type="number" name="column" min="5" max="100" value="9">
+        </label>
+        <label class="input">
+          <span>雷数</span>
+          <input type="number" name="mine" min="1" max="9999" value="10">
+        </label>
+        <button class="ok">确定</button>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>
