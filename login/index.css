@@ -1,0 +1,74 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 100%;
+  height: 100vh;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("https://i.pixiv.cat/img-original/img/2025/03/22/08/02/05/128470795_p0.jpg") no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.gform {
+  border: 2px solid #ff8aac;
+  border-radius: 10px;
+  color: #ff8aac;
+  background: #ffffffac;
+  padding: 20px;
+}
+@media screen and (max-width: 300px) {
+  .gform {
+    width: 100%;
+  }
+}
+
+.ginput {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+  position: relative;
+}
+.ginput > .text {
+  width: 30px;
+  flex: 1;
+}
+.ginput > input {
+  width: calc(100% - 70px);
+  height: 30px;
+  padding: 5px 10px;
+  border: 2px solid #ff8aac;
+  border-radius: 10px;
+  outline: none;
+}
+.ginput > input:hover {
+  border: 3px solid #ff7080;
+}
+.confirm {
+  color: #fff;
+  background: #ff8aac;
+  border: 2px solid #ff8aac;
+  border-radius: 10px;
+  padding: 5px 15px;
+  font-weight: bold;
+}
+.ginput.confirm-wapper {
+  justify-content: center;
+}
+.confirm:hover {
+  background: #ff7080;
+}
+.forget-pass {
+  position: absolute;
+  right: 5px;
+  font-size: 13px;
+  color: #0000ff;
+}
+.forget-pass:hover {
+  text-decoration: underline;
+}
