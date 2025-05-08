@@ -6,24 +6,32 @@ body {
 }
 
 .container {
-  width: 100%;
+  width: calc(100% - 10px);
   color: white;
   font-size: 20px;
+  padding: 0 5px;
 }
 
 .game_container {
   position: relative;
-  width: fit-content;
+  width: auto;
+  height: auto;
   margin: 0 auto;
-  padding: 5px 35px;
+  padding: 5px 20px;
   background-color: #FF8AAC;
   border: 2px solid #f46891;
   border-radius: 10px;
-  margin-top: 20px;
+  margin-top: 50px;
   overflow: visible;
+}
+@media screen and (max-width: 300px) {
+  .game_container {
+    min-width: calc(100% - 40px);
+  }
 }
 
 .game_table {
+  width: 100%;
   background-color: #f6a2ff;
   border-radius: 5px;
   background-image: url('./120848579_p0.png');
@@ -32,23 +40,26 @@ body {
   background-size: cover;
   border-spacing: 0;
   border: 2px solid white;
+
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .game_table tr {
   margin: 0;
-  min-width: 15px;
+  padding: 0;
 }
 
-.game_table .cell {
+.game_table td.cell {
+  min-width: 15px;
+  min-height: 15px;
   position: relative;
   background-color: #FF8AAC;
   margin: 0;
-  border: 2px solid transparent;
-  color: #FF8AAC;
-  font-size: 17px;
-  text-align: center;
+  border: 1px solid #ff7080;
   user-select: none !important;
   transition: all .3s;
+  font-size: 28px;
   -webkit-text-stroke: 1px #FF8AAC;
 }
 
@@ -60,13 +71,37 @@ body {
   width: 100%;
   height: 100%;
   color: white;
-  font-size: 28px;
   position: absolute;
   top: 0;
   left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.game_table .cell.m1::after {
+  content: '1';
+}
+.game_table .cell.m2::after {
+  content: '2';
+}
+.game_table .cell.m3::after {
+  content: '3';
+}
+.game_table .cell.m4::after {
+  content: '4';
+}
+.game_table .cell.m5::after {
+  content: '5';
+}
+.game_table .cell.m6::after {
+  content: '6';
+}
+.game_table .cell.m7::after {
+  content: '7';
+}
+.game_table .cell.m8::after {
+  content: '8';
 }
 
 .game_table .cell.star::after {
@@ -83,6 +118,7 @@ body {
 
 .game_table .cell.open {
   background-color: transparent;
+  border-color: transparent;
 }
 
 .top_controls .win {
@@ -106,6 +142,7 @@ body {
   margin: 0 auto;
   width: fit-content;
   height: 27px;
+  font-size: 15px;
 }
 
 .time_wrap {
@@ -122,6 +159,7 @@ body {
 
 .mine_left_wrap {
   position: absolute;
+  left: 0;
   bottom: 4px;
 }
 

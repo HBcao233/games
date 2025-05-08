@@ -161,21 +161,24 @@
       this.settings_form.querySelector('[name="column"]').value = this.column;
       this.settings_form.querySelector('[name="mine"]').value = this.mineCount;
       this.table.innerHTML = '';
-      let w = this.column * 24;
-      let h = this.row * 24;
-      if (w < 450) w = 450;
-      if (h < 450) h = 450;
-      let tdw = Math.max(w / this.column, h / this.row);
-      this.table.style.width = w + 'px';
-      this.table.style.height = h + 'px';
-      let fontSize = 30 - Math.floor(Math.max(this.row, this.column) / 2);
-      if (fontSize < 17) fontSize = 17;
+      
       for (let i = 0; i < this.row; i++) {
         this.table.appendChild(tag('tr', {
-          attrs: { 'data-index': i }, children: [...Array(this.column).keys()].map(j => {
-            return tag('td', { class: 'cell', style: `width: ${tdw};height: ${tdw}px; font-size: ${fontSize}px`, attrs: { 'data-index': this.column * i + j } });
+          attrs: { 'data-index': i }, 
+          children: [...Array(this.column).keys()].map(j => {
+            return tag('td', { class: 'cell', 
+              attrs: { 'data-index': this.column * i + j },
+            });
           })
         }))
+      };
+      this.table.style.height = this.table.getBoundingClientRect().width;
+      if (this.table.children[0].children[0].getBoundingClientRect().width < 25) {
+        this.table.querySelectorAll('td').forEach(t => {
+          t.style.width = '25px';
+          t.style.height = '25px';
+          t.style.fontSize = '25px';
+        })
       }
     }
 
@@ -215,10 +218,10 @@
       this.settingsBtn.addEventListener('click', () => {
         this.settings_form.classList.toggle('on');
       })
+      let r = this.settings_form.querySelector('[name="row"]');
+      let c = this.settings_form.querySelector('[name="column"]');
+      let m = this.settings_form.querySelector('[name="mine"]');
       this.settings_form.addEventListener('click', (e) => {
-        let r = this.settings_form.querySelector('[name="row"]');
-        let c = this.settings_form.querySelector('[name="column"]');
-        let m = this.settings_form.querySelector('[name="mine"]');
         if (e.target.closest('button.difficulty')) {
           switch (e.target.value) {
             case '0':
@@ -243,6 +246,19 @@
               break;
           }
           return;
+        } else if (e.target.closest('button.ok')) {
+          let row = parseInt(r.value);
+          let column = parseInt(c.value)
+          let mineCount = parseInt(m.value);
+          if (mineCount > row * column) {
+            mineCount = row * column;
+            m.value = mineCount;
+          }
+          this.row = row;
+          this.column = column;
+          this.mineCount = parseInt(m.value);
+          this.spawnTable();
+          this.reset();
         }
       })
     }
@@ -251,8 +267,13 @@
      * @param {Number} index 
      */
     spawnMine(index) {
+      if (this.mineCount > this.row * this.column) {
+          this.mineCount = this.row * this.column;
+          this.settings_form.querySelector('[name="mine"]').value = this.mineCount;
+          this.mineLeft.innerText = this.mineCount;
+      }
       let count = 0;
-      let flag = this.mineCount > this.row * this.column * 0.5;
+      let flag = this.mineCount > this.row * this.column - 1;
       while (count < this.mineCount) {
         let i = Math.floor(Math.random() * this.row * this.column);
         if ((flag || i != index) && this.mines.get(i) == 0) {
@@ -260,9 +281,13 @@
           count++;
         }
       }
-      // for (let i = 0; i < this.row * this.column; i++) {
-      //   if (this.mines.get(i)) this.table.querySelector(`td[data-index="${i}"]`).innerText = '★';
-      // }
+      
+      /*
+      // 显示雷
+      for (let i = 0; i < this.row * this.column; i++) {
+        if (this.mines.get(i)) this.table.querySelector(`td[data-index="${i}"]`).classList.add('star');
+      }
+      */
     }
     /**
      * 获取 索引位置周围位置的索引数组
@@ -304,17 +329,19 @@
     mineAllZero(index) {
       for (const i of this.around(index)) {
         if (i < 0 || i >= this.row * this.column) continue;
+        if (this.mines.get(i)) continue;
         let t = this.table.querySelector(`td[data-index="${i}"]`);
         if (t.classList.contains('open')) continue;
-        let c = this.countAround(i);
+        let count = this.countAround(i);
         this.openBlock(t);
-        if (c == 0) {
+        if (count == 0) {
           if (!t.checked) {
             t.checked = true;
             this.mineAllZero(i);
           }
         } else {
-          t.innerText = c;
+          // t.innerText = count;
+          t.classList.add('m' + count);
         }
       }
     }
@@ -353,10 +380,15 @@
         t.classList.add('boom');
         return;
       }
-      let count = this.countAround(index)
-      if (count == 0) this.mineAllZero(index);
-      else t.innerText = count;
       this.openBlock(t);
+      let count = this.countAround(index)
+      if (count == 0) {
+        t.checked = true;
+        this.mineAllZero(index);
+      } else {
+        // t.innerText = count;
+        t.classList.add('m' + count);
+      }
     }
     /**
      * 尝试插旗
@@ -379,7 +411,7 @@
           if (this.flag_count >= this.mineCount) {
             return this.gameWin();
           } else {
-            this.tip.innerText = '杂鱼~这样乱插旗子是没用的~';
+            this.tip.innerText = '杂鱼~这样乱标记雷是没用哒～';
           }
         }
         t.classList.add('flag')
@@ -419,7 +451,13 @@
     gameWin() {
       this.mineLeft.innerText = 0;
       this.gameEnd(1);
-      this.tip.innerText = '你赢啦！';
+      let time = (new Date()).getTime() - this.start_time;
+      let ms = time % 1000;
+      if (ms < 10) ms = '00' + ms
+      else if (ms < 100) ms = '0' + ms
+      let t = formatTime(Math.floor(time / 1000)) + '.' + ms; 
+      this.tip.innerText = '你赢啦！用时: ' + t;
+      alert('你赢啦！用时: ' + t);
     }
     /**
      * 重置
@@ -430,8 +468,9 @@
       clearInterval(this.timer);
       this.start_time = 0;
       this.opened_count = 0;
+      this.time.innerText = '00:00';
       this.mineLeft.innerText = this.mineCount;
-      this.mines.fill(0);
+      this.mines = new Bitmap(this.row * this.column);
       for (let i = 0; i < this.row * this.column; i++) {
         let t = this.table.querySelector(`td[data-index="${i}"]`);
         t.innerText = '';
@@ -440,9 +479,11 @@
         t.classList.remove('star');
         t.classList.remove('flag');
         t.classList.remove('boom');
+        for(let i=0; i<8; i++) t.classList.remove('m' + (i + 1))
       }
     }
   }
+  
   window.addEventListener('load', () => {
     let params = new URLSearchParams(window.location.search);
     new Game('.game_container', parseInt(params.get('row')), parseInt(params.get('column')), parseInt(params.get('mine')));
