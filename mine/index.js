@@ -37,6 +37,7 @@
       }
     }
     if (options.innerHTML) newElement.innerHTML = options.innerHTML;
+    else if (options.innerText) newElement.innerText = options.innerText;
     if (options.children) {
       if (!isArrayLike(options.children)) options.children = [options.children];
       for (const e of options.children) {
@@ -162,24 +163,34 @@
       this.settings_form.querySelector('[name="mine"]').value = this.mineCount;
       this.table.innerHTML = '';
       
+      const num2letter = (num) => {
+        let i = num % 26;
+        let j = parseInt(num / 26);
+        let res = String.fromCharCode(i + 65);
+        if (j != 0) res = String.fromCharCode(j + 64) + res + '\n';
+        return res;
+      };
       for (let i = 0; i < this.row; i++) {
         this.table.appendChild(tag('tr', {
           attrs: { 'data-index': i }, 
           children: [...Array(this.column).keys()].map(j => {
             return tag('td', { class: 'cell', 
               attrs: { 'data-index': this.column * i + j },
+              children: tag('div', {innerText: num2letter(j) + (i+1)}),
             });
           })
         }))
       };
-      this.table.style.height = this.table.getBoundingClientRect().width;
-      if (this.table.children[0].children[0].getBoundingClientRect().width < 25) {
-        this.table.querySelectorAll('td').forEach(t => {
-          t.style.width = '25px';
-          t.style.height = '25px';
-          t.style.fontSize = '25px';
-        })
-      }
+      
+      const w = this.table.getBoundingClientRect().width;
+      this.table.style.height = w;
+      this.table.querySelectorAll('td').forEach(t => {
+        const w1 = w/this.row < 30 ? 30 : w/this.row;
+        t.style.width = w1;
+        t.style.height = w1;
+        t.style.fontSize = w/this.row < 30 ? 25: 28;
+      })
+      
     }
 
     /**
@@ -189,6 +200,25 @@
       this.mineLeft.innerText = this.mineCount;
       this.spawnTable();
 
+      document.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t.classList.contains('slider')) {
+          if (t.classList.contains('on')) {
+            t.classList.remove('on')
+          } else {
+            t.classList.add('on')
+          };
+          
+          if (t.classList.contains('show-numbers')) {
+            if (t.classList.contains('on')) {
+              this.table.classList.add('show-numbers')
+            } else {
+              this.table.classList.remove('show-numbers')
+            };
+          }
+          
+        }
+      });
       this.table.addEventListener('click', (e) => {
         if (e.target.tagName == 'TD') {
           this.mine(e.target);
@@ -473,7 +503,6 @@
       this.mines = new Bitmap(this.row * this.column);
       for (let i = 0; i < this.row * this.column; i++) {
         let t = this.table.querySelector(`td[data-index="${i}"]`);
-        t.innerText = '';
         t.checked = false;
         t.classList.remove('open');
         t.classList.remove('star');
@@ -486,6 +515,6 @@
   
   window.addEventListener('load', () => {
     let params = new URLSearchParams(window.location.search);
-    new Game('.game_container', parseInt(params.get('row')), parseInt(params.get('column')), parseInt(params.get('mine')));
+    new Game('.container', parseInt(params.get('row')), parseInt(params.get('column')), parseInt(params.get('mine')));
   })
 })();

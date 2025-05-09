@@ -14,8 +14,6 @@ body {
 
 .game_container {
   position: relative;
-  width: auto;
-  height: auto;
   margin: 0 auto;
   padding: 5px 20px;
   background-color: #FF8AAC;
@@ -50,7 +48,7 @@ body {
   padding: 0;
 }
 
-.game_table td.cell {
+.game_table .cell {
   min-width: 15px;
   min-height: 15px;
   position: relative;
@@ -121,6 +119,25 @@ body {
   border-color: transparent;
 }
 
+.game_table .cell div {
+  display: none;
+  width: 0;
+  height: 0;
+  color: #f9f9f9;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 12px;
+  -webkit-text-stroke: none;
+  transform: translateY(-15px);
+  white-space: pre;
+}
+.game_table.show-numbers .cell div {
+  display: block;
+}
+.game_table .cell.open div {
+  display: none;
+}
+
 .top_controls .win {
   position: absolute;
   left: 4px;
@@ -171,24 +188,36 @@ body {
 
 .settings_form {
   display: none;
-  position: absolute;
-  right: 10px;
-  bottom: 40px;
-  border: 2px solid #fff;
+  width: calc(100% - 45px);
+  border: 2px solid #ff4689;
   background-color: #FF8AAC;
-  padding: 15px;
+  padding: 15px 20px;
+  margin-top: 5px;
   border-radius: 10px;
   opacity: 0;
   transform: opacity .5s;
 }
 
 .settings_form.on {
-  display: block;
+  display: flex;
   opacity: 1;
 }
 
+.settings_form .left {
+  padding-right: 10px;
+  border-right: 2px solid #ccc;
+}
+.settings_form .right {
+  padding-left: 10px;
+}
+
 .settings_form .input {
-  display: block;
+  display: flex;
+  align-items: center;
+}
+
+.settings_form .input span {
+  margin-right: 5px;
 }
 
 .settings_form .input input {
@@ -209,4 +238,26 @@ body {
   background: #ffffff;
   border: 2px solid #FF8AAC;
   outline: none;
+}
+
+.slider {
+  width: 55px;
+  height: 30px;
+  border: 2px solid #fff;
+  border-radius: 20px;
+}
+.slider.on {
+  
+}
+.slider-dot {
+  width: 22px;
+  height: 22px;
+  margin: 4px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .8s;
+}
+.slider.on .slider-dot {
+  background: green;
+  transform: translateX(22px);
 }

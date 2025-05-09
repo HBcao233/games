@@ -50,7 +50,11 @@
           </svg>
         </div>
       </div>
-      <form class="settings_form">
+      
+    </div>
+    
+    <form class="settings_form">
+      <div class="left">
         <button type="button" class="difficulty" value="0">简单</button>
         <button type="button" class="difficulty" value="1">普通</button><br>
         <button type="button" class="difficulty" value="2">困难</button>
@@ -65,11 +69,20 @@
         </label>
         <label class="input">
           <span>雷数</span>
-          <input type="number" name="mine" min="1" max="9999" value="10">
+          <input type="number" name="mine" min="1" max="9999" value="10" />
         </label>
         <button class="ok" type="button">确定</button>
-      </form>
-    </div>
+      </div>
+      <div class="right">
+        <label class="input">
+          <span>显示格号</span>
+          <div class="slider show-numbers" type="button">
+            <div class="slider-dot"></div>
+          </div>
+        </label>
+      </div>
+    </form>
+    
   </div>
 </body>
 
