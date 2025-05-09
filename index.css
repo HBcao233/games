@@ -1,0 +1,60 @@
+.*,
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:virsted {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+a:active {
+  text-decoration: none;
+}
+
+.container {
+  width: calc(100% - 10px);
+  color: #ff8aac;
+  font-size: 17px;
+  padding: 0 5px;
+}
+
+.games {
+  display: flex;
+  flex-wrap: wrap;
+}
+.game {
+  width: calc(48% - 20px);
+  margin: 5px;
+  padding: 5px;
+  border: 2px solid #ff8aac;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ff8aac;
+}
+.game:hover {
+  background: #eee;
+}
+
+.game .image {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none !important;
+}
+.game .image svg, 
+.game .image img {
+  width: 100%;
+  height: 100%;
+}
