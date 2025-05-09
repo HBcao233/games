@@ -8,7 +8,7 @@ body {
 .container {
   width: calc(100% - 10px);
   color: white;
-  font-size: 20px;
+  font-size: 17px;
   padding: 0 5px;
 }
 
@@ -32,7 +32,7 @@ body {
   width: 100%;
   background-color: #f6a2ff;
   border-radius: 5px;
-  background-image: url('./120848579_p0.png');
+  background-image: url('./129216710_p0.jpg');
   background-repeat: 0;
   background-position: 0;
   background-size: cover;
@@ -58,7 +58,7 @@ body {
   user-select: none !important;
   transition: all .3s;
   font-size: 28px;
-  -webkit-text-stroke: 1px #FF8AAC;
+  -webkit-text-stroke: .5px #fff;
 }
 
 .game_table .cell:hover {
@@ -79,27 +79,35 @@ body {
 
 .game_table .cell.m1::after {
   content: '1';
+  color: #2473c4;
 }
 .game_table .cell.m2::after {
   content: '2';
+  color: #398d3c;
 }
 .game_table .cell.m3::after {
   content: '3';
+  color: #e45953;
 }
 .game_table .cell.m4::after {
   content: '4';
+  color: #e45953;
 }
 .game_table .cell.m5::after {
   content: '5';
+  color: #e45953;
 }
 .game_table .cell.m6::after {
   content: '6';
+  color: #e45953;
 }
 .game_table .cell.m7::after {
   content: '7';
+  color: #e45953;
 }
 .game_table .cell.m8::after {
   content: '8';
+  color: #e45953;
 }
 
 .game_table .cell.star::after {
@@ -260,4 +268,12 @@ body {
 .slider.on .slider-dot {
   background: green;
   transform: translateX(22px);
+}
+
+.introduction {
+  margin-top: 40px;
+  padding: 20px;
+  color: #ff8aac;
+  border: 2px solid #ff8aac;
+  border-radius: 20px;
 }
