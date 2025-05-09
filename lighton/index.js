@@ -116,16 +116,14 @@
   class Game {
     static instance;
     container;
-    row = 9;
-    column = 9;
-    mineCount = 10;
+    row = 2;
+    column = 2;
     start_time = 0;
     ended = false;
     timer;
     opened_count = 0;
-    flag_count = 0;
 
-    constructor(containerSelector, row, column, mineCount) {
+    constructor(containerSelector, row, column) {
       if (Game.instance) {
         return Game.instance;
       }
@@ -133,19 +131,14 @@
       this.container = document.querySelector(containerSelector);
       this.table = this.container.querySelector('.game_table');
       this.time = this.container.querySelector('.bottom_controls .time');
-      this.mineLeft = this.container.querySelector('.bottom_controls .mine_left');
       this.tip = this.container.querySelector('.top_controls .tip');
       this.winBtn = this.container.querySelector('.top_controls .win');
       this.resetBtn = this.container.querySelector('.top_controls .reset');
+      this.blockLeft = this.container.querySelector('.bottom_controls .block_left');
       this.settingsBtn = this.container.querySelector('.bottom_controls .settings');
       this.settings_form = this.container.querySelector('.settings_form');
       if (row) this.row = row;
       if (column) this.column = column;
-      if (mineCount) {
-        if (mineCount >= this.row * this.column) mineCount = this.row * this.column - 1;
-        this.mineCount = mineCount;
-      }
-      this.mines = new Bitmap(this.row * this.column);
       this.init();
     }
 
@@ -156,11 +149,9 @@
       history.replaceState({}, '', '?' + new URLSearchParams({
         row: this.row,
         column: this.column,
-        mine: this.mineCount,
       }).toString());
       this.settings_form.querySelector('[name="row"]').value = this.row;
       this.settings_form.querySelector('[name="column"]').value = this.column;
-      this.settings_form.querySelector('[name="mine"]').value = this.mineCount;
       this.table.innerHTML = '';
       
       const num2letter = (num) => {
@@ -197,44 +188,44 @@
      * 初始化
      */
     init() {
-      this.mineLeft.innerText = this.mineCount;
+      this.blockLeft.innerText = this.row * this.column;
       this.spawnTable();
-
+      
+      // 监听按钮/滑块点击
       document.addEventListener('click', (e) => {
         const t = e.target;
         if (t.classList.contains('slider')) {
-          t.classList.toggle('on')
+          t.classList.toggle('on');
           
           if (t.classList.contains('show-numbers')) {
             this.table.classList.toggle('show-numbers');
           }
           
+        } else if (t.classList.contains('bigger')) {
+          if (this.row <= this.column) {
+            this.row++;
+          } else {
+            this.column++;
+          }
+          this.spawnTable();
+          this.reset();
+          this.container.querySelector('.bigger_wapper').classList.remove('on');
         }
       });
       this.table.addEventListener('click', (e) => {
         if (e.target.tagName == 'TD') {
-          this.mine(e.target);
+          this.clickBlock(e.target);
         };
       })
-      this.table.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        if (e.target.tagName == 'TD') {
-          this.flag(e.target);
-        };
-        return false;
-      })
+      
       this.winBtn.addEventListener('click', () => {
-        if (this.start_time == 0) {
-          this.tip.innerText = '游戏还未开始啦, 请先点开一格格子开始游戏';
+        if (this.ended) {
+          this.tip.innerText = '游戏已经胜利啦, 点击右边按钮重置';
           return;
         }
         this.gameWin();
       });
       this.resetBtn.addEventListener('click', () => {
-        if (this.start_time == 0) {
-          this.tip.innerText = '游戏还未开始啦, 请先点开一格格子开始游戏';
-          return;
-        }
         this.reset();
       })
       this.settingsBtn.addEventListener('click', () => {
@@ -242,75 +233,38 @@
       })
       let r = this.settings_form.querySelector('[name="row"]');
       let c = this.settings_form.querySelector('[name="column"]');
-      let m = this.settings_form.querySelector('[name="mine"]');
       this.settings_form.addEventListener('click', (e) => {
         if (e.target.closest('button.difficulty')) {
           switch (e.target.value) {
             case '0':
-              r.value = 9;
-              c.value = 9;
-              m.value = 10;
+              r.value = 2;
+              c.value = 2;
               break;
             case '1':
-              r.value = 16;
-              c.value = 16;
-              m.value = 40;
+              r.value = 3;
+              c.value = 3;
               break;
             case '2':
-              r.value = 16;
-              c.value = 30;
-              m.value = 100;
+              r.value = 4;
+              c.value = 4;
               break;
             case '3':
-              r.value = 25;
-              c.value = 60;
-              m.value = 309;
+              r.value = 5;
+              c.value = 5;
               break;
           }
           return;
         } else if (e.target.closest('button.ok')) {
           let row = parseInt(r.value);
           let column = parseInt(c.value)
-          let mineCount = parseInt(m.value);
-          if (mineCount > row * column) {
-            mineCount = row * column;
-            m.value = mineCount;
-          }
           this.row = row;
           this.column = column;
-          this.mineCount = mineCount;
           this.spawnTable();
           this.reset();
         }
       })
     }
-    /**
-     * 生成地雷
-     * @param {Number} index 
-     */
-    spawnMine(index) {
-      if (this.mineCount > this.row * this.column) {
-          this.mineCount = this.row * this.column;
-          this.settings_form.querySelector('[name="mine"]').value = this.mineCount;
-          this.mineLeft.innerText = this.mineCount;
-      }
-      let count = 0;
-      let flag = this.mineCount > this.row * this.column - 1;
-      while (count < this.mineCount) {
-        let i = Math.floor(Math.random() * this.row * this.column);
-        if ((flag || i != index) && this.mines.get(i) == 0) {
-          this.mines.set(i, 1);
-          count++;
-        }
-      }
-      
-      /*
-      // 显示雷
-      for (let i = 0; i < this.row * this.column; i++) {
-        if (this.mines.get(i)) this.table.querySelector(`td[data-index="${i}"]`).classList.add('star');
-      }
-      */
-    }
+    
     /**
      * 获取 索引位置周围位置的索引数组
      * @param {Number} index 
@@ -323,163 +277,265 @@
       let j = index % this.column;
       if (i != 0) {
         res.push(index - this.column);
-        if (j != 0) res.push(index - this.column - 1);
-        if (j != this.column - 1) res.push(index - this.column + 1);
       }
       if (i != this.row - 1) {
         res.push(index + this.column);
-        if (j != 0) res.push(index + this.column - 1);
-        if (j != this.column - 1) res.push(index + this.column + 1);
       }
       if (j != 0) res.push(index - 1);
       if (j != this.column - 1) res.push(index + 1);
       return res;
     }
     /**
-     * 计算索引位置周围的地雷个数
-     * @param {Number} index 
-     * @returns {Number}
-     */
-    countAround(index) {
-      index = parseInt(index);
-      return this.around(index).map(i => this.mines.get(i)).reduce((sum, i) => sum + i, 0);
-    }
-    /**
-     * 打开周围所有 周围地雷个数为 0 的格子
-     * @param {Number} index 
-     */
-    mineAllZero(index) {
-      for (const i of this.around(index)) {
-        if (i < 0 || i >= this.row * this.column) continue;
-        if (this.mines.get(i)) continue;
-        let t = this.table.querySelector(`td[data-index="${i}"]`);
-        if (t.classList.contains('open')) continue;
-        let count = this.countAround(i);
-        this.openBlock(t);
-        if (count == 0) {
-          if (!t.checked) {
-            t.checked = true;
-            this.mineAllZero(i);
-          }
-        } else {
-          // t.innerText = count;
-          t.classList.add('m' + count);
-        }
-      }
-    }
-    /**
-     * 打开格子
+     * 逻辑打开格子
      * @param {HTMLElement} t 
      */
     openBlock(t) {
       if (t.classList.contains('open')) return;
       t.classList.add('open');
       this.opened_count++;
-      if (this.opened_count >= this.row * this.column - this.mineCount) {
-        this.gameWin();
-      }
     }
     /**
-     * 尝试排雷
+     * 逻辑关闭格子
      * @param {HTMLElement} t 
      */
-    mine(t) {
+    closeBlock(t) {
+      if (!t.classList.contains('open')) return;
+      t.classList.remove('open');
+      this.opened_count--;
+    }
+    /**
+     * 逻辑切换格子状态
+     * @param {HTMLElement} t 
+     */
+    toggleBlock(t){
+      if (t.classList.contains('open')) this.closeBlock(t);
+      else this.openBlock(t);
+    }
+    /**
+     * 点击格子
+     * @param {HTMLElement} t 
+     */
+    clickBlock(t) {
       let index = parseInt(t.getAttribute('data-index'));
       if (this.ended) {
         return;
       }
-      if (t.classList.contains('flag')) return;
       if (this.start_time == 0) {
-        this.spawnMine(index);
         this.start_time = (new Date()).getTime();
         this.time.innerText = '00:00';
         this.timer = setInterval(() => {
           this.time.innerText = formatTime(Math.floor(((new Date()).getTime() - this.start_time) / 1000));
         }, 1000);
       }
-      if (this.mines.get(index)) {
-        this.gameOver();
-        t.classList.add('boom');
-        return;
+      
+      if (t.classList.contains('star')) {
+        t.classList.toggle('boom')
       }
-      this.openBlock(t);
-      let count = this.countAround(index)
-      if (count == 0) {
-        t.checked = true;
-        this.mineAllZero(index);
-      } else {
-        // t.innerText = count;
-        t.classList.add('m' + count);
+      
+      this.toggleBlock(t);
+      this.around(index).map(i => {
+        let t = this.table.querySelector(`td[data-index="${i}"]`);
+        this.toggleBlock(t);
+      }) 
+      this.blockLeft.innerText = this.row * this.column - this.opened_count;
+      if (this.opened_count >= this.row * this.column) {
+        this.gameWin();
       }
     }
+    
     /**
-     * 尝试插旗
-     * @param {HTMLElement} t 
+     * 求解点灯游戏
      */
-    flag(t) {
-      if (this.ended) {
-        return;
+    solve() {
+      /**
+         * 每一位异或, 返回 0 或 1
+         */
+      const allbit_xor = (n) => {
+        let res = 0;
+        for (let i = 0; i < n.size; i++) {
+          res ^= n.get(i);
+        }
+        return res;
       }
-      if (this.start_time == 0) {
-        this.tip.innerText = '游戏还未开始啦, 请先点开一格格子开始游戏';
-        return;
+      /**
+       * 计算位图中 1 的数量
+       */
+      const count_of_1 = (n) => {
+        let count = 0;
+        for (let i = 0; i < n.size; i++) {
+          if (n.get(i)) count += 1;
+        }
+        return count;
       }
-      if (t.classList.contains('open')) return;
-      let c = parseInt(this.mineLeft.innerText);
-      if (!t.classList.contains('flag')) {
-        let index = parseInt(t.getAttribute('data-index'));
-        if (this.mines.get(index)) this.flag_count++;
-        if (c == 1) {
-          if (this.flag_count >= this.mineCount) {
-            return this.gameWin();
-          } else {
-            this.tip.innerText = '杂鱼~这样乱标记雷是没用哒～';
+      /**
+       * 生成求解矩阵
+       */
+      const gen_solve_matrix = (row, column, init_matrix) => {
+        if (!init_matrix) init_matrix = new Bitmap(row * column)
+        let matrix = new Bitmap(row * column * (row * column + 1) );
+        for (let i = 0; i < row * column; i++) {
+          for (let j = 0; j < row * column + 1; j++) {
+            let k = 0;
+            if (j == row * column) k = 1;
+            if (
+              [i - column, i - 1, i, i + 1, i + column, row * column].indexOf(j) !== -1
+              && (i % column != 0 || j != i - 1)
+              && (i % column != column - 1 || j != i + 1)
+            ) {
+              k = 1;
+            }
+            if (j != row * column) k ^= init_matrix.get(j);
+            matrix.set(i * (row * column + 1) + j, k);
           }
         }
-        t.classList.add('flag')
-        this.mineLeft.innerText = c - 1;
-      } else {
-        t.classList.remove('flag')
-        this.mineLeft.innerText = c + 1;
+        return matrix;
       }
-    }
-    /**
-     * 游戏结束
-     * @param {Bool} win 
-     */
-    gameEnd(win) {
-      this.ended = true;
-      clearInterval(this.timer);
+      const format_vector = (vector, row, column) => {
+        let res = '';
+        for (let i = 0; i < row; i++) {
+          if (i != 0) res += '\n';
+          for (let j = 0; j < column; j++) {
+            if (j != 0) res += ' ';
+            res += vector.get(i * column + j);
+          }
+        }
+        return res;
+      }
+      /**
+       * 格式化求解矩阵
+       */
+      const format_solve_matrix = (matrix, row, column) => {
+        let res = '';
+        for (let i = 0; i < row * column; i++) {
+          if (i != 0) res += '\n';
+          for (let j = 0; j < row * column + 1; j++) {
+            let k = matrix.get(i * (row * column + 1) + j);
+            if (j != row * column) res += ' ';
+            else res += ' | '
+            res += k + '';
+          }
+        }
+        return res;
+      }
+      /**
+       * 高斯消元法求解
+       */
+      const gauss_elimination = (matrix, row, column) => {
+        /**
+         * 返回结果. 遍历高斯矩阵每一行的最后一列即为结果
+         */
+        const to_result = (matrix) => {
+          let res = new Bitmap(row*column)
+          for (let i = 0; i < row * column; i++) {
+            res.set(i, matrix.get(i * (row * column + 1) + row * column));
+          }
+          return res;
+        }
+        /**
+         * 寻找最优解
+         */
+        const find_optimal_solution = (result, var_rule) => {
+          const freevar_num = row - var_rule.length;
+          let res;
+          let min = row * column;
+          for (let i = 0; i < 2 ** freevar_num; i++) {
+            let t = new Bitmap(var_rule.length);
+            for (let j = 0; j < var_rule.length; j++) {
+              t.set(j, allbit_xor(var_rule[j].get(i)) ^ (result.get(j) & 1));
+              t.set(var_rule.length, i);
+            }
+            let m = count_of_1(t);
+            if (m < min) {
+              min = m;
+              res = t;
+            }
+          }
+          return res;
+        }
+        
+        for(let i = 0; i < row * column; i++) {
+          let cursor = i;
+          while (cursor < row * column && !matrix.get(cursor * (row * column + 1) + i)) cursor++;
+          // console.log(cursor)
+          if (cursor == row * column) {
+            // console.log(format_solve_matrix(matrix, row, column))
+            // 多解时返回一个解
+            if (!matrix.get(i * (row * column + 1) + row * column)) {
+              const freevar_num = row * column - i;
+              console.log('解数量:', 2 ** freevar_num);
+              let result = to_result(matrix);
+              console.log(format_vector(result, 2, 2))
+              if (freevar_num > 10) return result;
+              let var_rule = [];
+              for (let j = 0; j < i; j++) {
+                let t = new Bitmap(freevar_num);
+                for (let k = 0; k < freevar_num; k++) {
+                  t.set(k, matrix.get(j * (row + column + 1) + row - k - 1) & 1)
+                }
+                var_rule.push(t)
+              }
+              return find_optimal_solution(result, var_rule)
+            }
+            return false;
+          }
+          if (cursor != i) {
+            // 交换两列
+            for (let j = 0; j < row * column + 1; j++) {
+              const t = matrix.get(i * (row * column + 1) + j);
+              matrix.set(
+                i * (row * column + 1) + j, 
+                matrix.get(cursor * (row * column + 1) + j)
+              );
+              matrix.set(cursor * (row * column + 1) + j, t);
+            }
+          }
+          // 消元
+          for (let j = 0; j < row * column; j++) {
+            if ((i != j) && matrix.get(j * (row * column + 1) + i)) {
+              for (let k = 0; k < row * column + 1; k++) matrix.set(
+                j * (row * column + 1) + k, 
+                matrix.get(j * (row * column + 1) + k) ^ matrix.get(i * (row * column + 1) + k)
+              )
+            }
+          }
+          // console.log(format_solve_matrix(matrix, row, column))
+        }
+        return to_result(matrix)
+      }
+      
+      
+      let row = this.row;
+      let column = this.column;
+      let m = gen_solve_matrix(row, column);
+      // console.log(format_solve_matrix(m,  row, column))
+      let res = gauss_elimination(m, row, column);
+      // console.log(format_vector(res, row, column));
+      
       for (let i = 0; i < this.row * this.column; i++) {
         let t = this.table.querySelector(`td[data-index="${i}"]`);
-        if (win) t.classList.add('open');
-        if (this.mines.get(i)) {
-          t.classList.add('star');
-        } else {
-          t.classList.remove('star');
+        t.classList.add('open');
+        if (res.get(i)) {
+          t.classList.add('star')
         }
       }
-    }
-    /**
-     * 游戏失败
-     */
-    gameOver() {
-      this.gameEnd();
-      this.tip.innerText = '杂鱼~这就不行了？';
     }
     /**
      * 游戏胜利
      */
     gameWin() {
-      this.mineLeft.innerText = 0;
-      this.gameEnd(1);
-      let time = (new Date()).getTime() - this.start_time;
+      this.blockLeft.innerText = 0;
+      this.ended = true;
+      clearInterval(this.timer);
+      
+      let time = this.start_time != 0 ? (new Date()).getTime() - this.start_time : 0;
       let ms = time % 1000;
       if (ms < 10) ms = '00' + ms
       else if (ms < 100) ms = '0' + ms
       let t = formatTime(Math.floor(time / 1000)) + '.' + ms; 
       this.tip.innerText = '你赢啦！用时: ' + t;
-      alert('你赢啦！用时: ' + t);
+      this.container.querySelector('.bigger_wapper').classList.add('on');
+      
+      this.solve();
     }
     /**
      * 重置
@@ -491,22 +547,21 @@
       this.start_time = 0;
       this.opened_count = 0;
       this.time.innerText = '00:00';
-      this.mineLeft.innerText = this.mineCount;
-      this.mines = new Bitmap(this.row * this.column);
+      this.blockLeft.innerText = this.row * this.column;
+      
       for (let i = 0; i < this.row * this.column; i++) {
         let t = this.table.querySelector(`td[data-index="${i}"]`);
-        t.checked = false;
         t.classList.remove('open');
-        t.classList.remove('star');
-        t.classList.remove('flag');
-        t.classList.remove('boom');
-        for(let i=0; i<8; i++) t.classList.remove('m' + (i + 1))
       }
     }
   }
   
   window.addEventListener('load', () => {
     let params = new URLSearchParams(window.location.search);
-    new Game('.container', parseInt(params.get('row')), parseInt(params.get('column')), parseInt(params.get('mine')));
+    new Game(
+      '.container', 
+      parseInt(params.get('row')), 
+      parseInt(params.get('column')),
+    );
   })
 })();

@@ -1,0 +1,17 @@
+.block_left_wrap {
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+}
+
+.bigger_wapper {
+  display: none;
+  justify-content: center;
+}
+.bigger_wapper.on {
+  display: flex;
+}
+.bigger {
+  font-size: 25px;
+  font-weight: bold;
+}

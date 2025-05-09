@@ -1,9 +1,11 @@
 <html>
 
 <head>
-  <title>扫雷</title>
+  <title>点灯游戏</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="index.css?v=1">
+  <link rel="stylesheet" href="../mine/index.css?v=1">
+  <link rel="stylesheet" href="./index.css?v=1">
+
   <script src="./index.js?v=1"></script>
 </head>
 
@@ -40,9 +42,9 @@
         <div class="time_wrap">
           <div class="time">00:00</div>
         </div>
-        <div class="mine_left_wrap">
+        <div class="block_left_wrap">
           <span style="font-size: 25px;">★</span>
-          <span class="mine_left"></span>
+          <span class="block_left"></span>
         </div>
         <div class="settings">
           <svg t="1735108553622" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -55,13 +57,16 @@
       </div>
       
     </div>
+    <div class="bigger_wapper">
+      <button class="btn bigger" type="button">变大！</button>
+    </div>
     
     <form class="settings_form">
       <div class="left">
-        <button type="button" class="difficulty" value="0">简单</button>
-        <button type="button" class="difficulty" value="1">普通</button><br>
-        <button type="button" class="difficulty" value="2">困难</button>
-        <button type="button" class="difficulty" value="3">全屏</button><br>
+        <button type="button" class="btn difficulty" value="0">2x2</button>
+        <button type="button" class="btn difficulty" value="1">3x3</button><br>
+        <button type="button" class="btn difficulty" value="2">4x4</button>
+        <button type="button" class="btn difficulty" value="3">5x5</button><br>
         <label class="input">
           <span>行数</span>
           <input type="number" name="row" min="5" max="100" value="9">
@@ -69,10 +74,6 @@
         <label class="input">
           <span>列数</span>
           <input type="number" name="column" min="5" max="100" value="9">
-        </label>
-        <label class="input">
-          <span>雷数</span>
-          <input type="number" name="mine" min="1" max="9999" value="10" />
         </label>
         <button class="btn ok" type="button">确定</button>
       </div>
@@ -87,18 +88,17 @@
     </form>
     
     <div class="introduction">
-      <h2 class="title">扫雷</h2>
-      <p style="text-indent:2em">扫雷游戏（英语：Minesweeper）是一类逻辑谜题类电子游戏。游戏界面由一系列可点击的方块组成，某些方块中隐藏着“地雷”。玩家需打开所有无雷方块，但不能触发地雷。已打开方块上显示的数字展现了周围地雷数量。</p>
+      <h2 class="title">点灯游戏</h2>
+      <p style="text-indent:2em">《点灯游戏》是一款智力类游戏。《点灯游戏》中玩家面对一个N行N列的灯阵，目标是在最短时间内通过最少的点击次数将所有灯点亮。每次点击一盏灯，该灯及其上下左右的灯（如果存在）状态会改变。</p>
       <br>
       <p>操作方式：</p>
       <ul style="-webkit-margin-start: 1em;">
-        <li><b>左键</b> (手机端为<b>短触</b>): 打开格子</li>
-        <li><b>右键</b> (手机端为<b>长按</b>): 标记地雷</li>
+        <li><b>左键</b> (手机端为<b>短触</b>): 打开/关闭格子，同时上下左右格子状态反转</li>
       </ul>
       <br>
       <p>胜利条件：</p>
       <ul style="-webkit-margin-start: 1em;">
-        <li>打开所有无雷格子</li>
+        <li>打开所有格子</li>
       </ul>
     </div>
   </div>
