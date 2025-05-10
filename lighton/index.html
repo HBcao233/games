@@ -1,6 +1,6 @@
 <html>
-
 <head>
+  <meta charset="utf-8">
   <title>点灯游戏</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="../mine/index.css?v=1">
@@ -43,8 +43,10 @@
           <div class="time">00:00</div>
         </div>
         <div class="block_left_wrap">
-          <span style="font-size: 25px;">★</span>
-          <span class="block_left"></span>
+          <span style="font-size: 25px; display: inline-block; transform: translateY(3px);">★</span>
+          <span class="click_times">0</span>
+          <span style="font-size: 17px; margin-left: 2px">⬜</span>
+          <span class="block_left">0</span>
         </div>
         <div class="settings">
           <svg t="1735108553622" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -84,6 +86,7 @@
             <div class="slider-dot"></div>
           </div>
         </label>
+        <button class="btn edit" type="button">进入编辑模式</button>
       </div>
     </form>
     

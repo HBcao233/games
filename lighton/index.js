@@ -112,6 +112,26 @@
       return this.#size
     }
   }
+  /**
+   * 每一位异或, 返回 0 或 1
+   */
+  const allbit_xor = (n) => {
+    let res = 0;
+    for (let i = 0; i < n.size; i++) {
+      res ^= n.get(i);
+    }
+    return res;
+  }
+  /**
+   * 计算位图中 1 的数量
+   */
+  const count_of_1 = (n) => {
+    let count = 0;
+    for (let i = 0; i < n.size; i++) {
+      if (n.get(i)) count += 1;
+    }
+    return count;
+  }
 
   class Game {
     static instance;
@@ -121,12 +141,14 @@
     start_time = 0;
     ended = false;
     timer;
-    opened_count = 0;
+    click_count = 0;
 
-    constructor(containerSelector, row, column) {
+    constructor(containerSelector, row, column, init) {
       if (Game.instance) {
         return Game.instance;
       }
+      if (!init) init = 0;
+      
       Game.instance = this;
       this.container = document.querySelector(containerSelector);
       this.table = this.container.querySelector('.game_table');
@@ -134,11 +156,22 @@
       this.tip = this.container.querySelector('.top_controls .tip');
       this.winBtn = this.container.querySelector('.top_controls .win');
       this.resetBtn = this.container.querySelector('.top_controls .reset');
+      this.clickTimes = this.container.querySelector('.bottom_controls .click_times')
       this.blockLeft = this.container.querySelector('.bottom_controls .block_left');
       this.settingsBtn = this.container.querySelector('.bottom_controls .settings');
       this.settings_form = this.container.querySelector('.settings_form');
       if (row) this.row = row;
       if (column) this.column = column;
+      
+      let i = 0;
+      let init_matrix = new Bitmap(this.row * this.column)
+      while(init != 0) {
+        init_matrix.set(i, init % 2);
+        init = Math.floor(init / 2);
+        i++;
+      }
+      this.init_matrix = init_matrix;
+      
       this.init();
     }
 
@@ -146,10 +179,13 @@
      * 创建表格
      */
     spawnTable() {
-      history.replaceState({}, '', '?' + new URLSearchParams({
-        row: this.row,
-        column: this.column,
-      }).toString());
+      let params = new URLSearchParams(window.location.search);
+      // console.log(params)
+      params.set('row', this.row);
+      params.set('column', this.column);
+      history.replaceState({}, '', '?' + new URLSearchParams(params).toString());
+      this.solve();
+      
       this.settings_form.querySelector('[name="row"]').value = this.row;
       this.settings_form.querySelector('[name="column"]').value = this.column;
       this.table.innerHTML = '';
@@ -175,12 +211,12 @@
       
       const w = this.table.getBoundingClientRect().width;
       this.table.style.height = w;
-      this.table.querySelectorAll('td').forEach(t => {
-        const w1 = w/this.row < 30 ? 30 : w/this.row;
+      const w1 = w/this.row < 30 ? 30 : w/this.row;
+      for (const t of this.table.querySelectorAll('td')) {
         t.style.width = w1;
         t.style.height = w1;
         t.style.fontSize = w/this.row < 30 ? 25: 28;
-      })
+      }
       
     }
 
@@ -188,8 +224,13 @@
      * 初始化
      */
     init() {
-      this.blockLeft.innerText = this.row * this.column;
       this.spawnTable();
+      
+      for (let i = 0; i < this.row * this.column; i++) {
+        let t = this.table.querySelector(`td[data-index="${i}"]`);
+        if (this.init_matrix.get(i)) t.classList.add('open')
+      }
+      this.blockLeft.innerText = this.row * this.column - count_of_1(this.init_matrix);
       
       // 监听按钮/滑块点击
       document.addEventListener('click', (e) => {
@@ -200,8 +241,10 @@
           if (t.classList.contains('show-numbers')) {
             this.table.classList.toggle('show-numbers');
           }
-          
-        } else if (t.classList.contains('bigger')) {
+          return;
+        } 
+        // 变大按钮
+        if (t.classList.contains('bigger')) {
           if (this.row <= this.column) {
             this.row++;
           } else {
@@ -210,6 +253,34 @@
           this.spawnTable();
           this.reset();
           this.container.querySelector('.bigger_wapper').classList.remove('on');
+          return
+        }
+        // 编辑模式按钮
+        if (t.classList.contains('edit')) {
+          if (!this.container.querySelector('.game_container').classList.contains('edit')) {
+            this.container.querySelector('.game_container').classList.add('edit');
+            t.innerText = '退出编辑模式';
+            this.reset()
+          } else {
+            this.container.querySelector('.game_container').classList.remove('edit');
+            t.innerText = '进入编辑模式';
+            let init = 0;
+            let init_matrix = new Bitmap(this.row * this.column);
+            for (let i = 0; i < this.row * this.column; i++) {
+              let t = this.table.querySelector(`td[data-index="${i}"]`);
+              let v = 0;
+              if (t.classList.contains('open')) v = 1;
+              init += v * (2 ** i);
+              init_matrix.set(i, v);
+            }
+            
+            // console.log(init)
+            this.init_matrix = init_matrix;
+            let params = new URLSearchParams(window.location.search);
+            params.set('init', init);
+            history.replaceState({}, '', '?' + params.toString());
+            this.solve();
+          }
         }
       });
       this.table.addEventListener('click', (e) => {
@@ -286,36 +357,15 @@
       return res;
     }
     /**
-     * 逻辑打开格子
-     * @param {HTMLElement} t 
-     */
-    openBlock(t) {
-      if (t.classList.contains('open')) return;
-      t.classList.add('open');
-      this.opened_count++;
-    }
-    /**
-     * 逻辑关闭格子
-     * @param {HTMLElement} t 
-     */
-    closeBlock(t) {
-      if (!t.classList.contains('open')) return;
-      t.classList.remove('open');
-      this.opened_count--;
-    }
-    /**
-     * 逻辑切换格子状态
-     * @param {HTMLElement} t 
-     */
-    toggleBlock(t){
-      if (t.classList.contains('open')) this.closeBlock(t);
-      else this.openBlock(t);
-    }
-    /**
      * 点击格子
      * @param {HTMLElement} t 
      */
     clickBlock(t) {
+      if (this.container.querySelector('.game_container').classList.contains('edit')) {
+        t.classList.toggle('open');
+        return;
+      }
+      
       let index = parseInt(t.getAttribute('data-index'));
       if (this.ended) {
         return;
@@ -332,13 +382,21 @@
         t.classList.toggle('boom')
       }
       
-      this.toggleBlock(t);
-      this.around(index).map(i => {
+      t.classList.toggle('open');
+      for(const i of this.around(index)) {
         let t = this.table.querySelector(`td[data-index="${i}"]`);
-        this.toggleBlock(t);
-      }) 
-      this.blockLeft.innerText = this.row * this.column - this.opened_count;
-      if (this.opened_count >= this.row * this.column) {
+        t.classList.toggle('open')
+      }
+      
+      this.click_count++;
+      this.clickTimes.innerText = this.click_count;
+      
+      let blockLeft = this.row * this.column;
+      for (const t of this.table.querySelectorAll('td')) {
+        if (t.classList.contains('open')) blockLeft--;
+      }
+      this.blockLeft.innerText = blockLeft;
+      if (blockLeft == 0) {
         this.gameWin();
       }
     }
@@ -347,26 +405,6 @@
      * 求解点灯游戏
      */
     solve() {
-      /**
-         * 每一位异或, 返回 0 或 1
-         */
-      const allbit_xor = (n) => {
-        let res = 0;
-        for (let i = 0; i < n.size; i++) {
-          res ^= n.get(i);
-        }
-        return res;
-      }
-      /**
-       * 计算位图中 1 的数量
-       */
-      const count_of_1 = (n) => {
-        let count = 0;
-        for (let i = 0; i < n.size; i++) {
-          if (n.get(i)) count += 1;
-        }
-        return count;
-      }
       /**
        * 生成求解矩阵
        */
@@ -384,7 +422,7 @@
             ) {
               k = 1;
             }
-            if (j != row * column) k ^= init_matrix.get(j);
+            if (j == row * column) k ^= init_matrix.get(i);
             matrix.set(i * (row * column + 1) + j, k);
           }
         }
@@ -435,15 +473,24 @@
          * 寻找最优解
          */
         const find_optimal_solution = (result, var_rule) => {
-          const freevar_num = row - var_rule.length;
+          const freevar_num = row * column - var_rule.length;
           let res;
           let min = row * column;
-          for (let i = 0; i < 2 ** freevar_num; i++) {
-            let t = new Bitmap(var_rule.length);
+          for (let i = 0; i < (2 ** freevar_num); i++) {
+            let t = new Bitmap(row * column);
             for (let j = 0; j < var_rule.length; j++) {
-              t.set(j, allbit_xor(var_rule[j].get(i)) ^ (result.get(j) & 1));
-              t.set(var_rule.length, i);
+              let ii = i;
+              let v = 0;
+              let k = 0;
+              while (ii != 0) {
+                v ^= var_rule[j].get(k) & (ii % 2)
+                t.set(var_rule.length + freevar_num - k - 1, ii % 2)
+                ii = Math.floor(ii / 2)
+                k++;
+              }
+              t.set(j, v ^ result.get(j));
             }
+            // console.log(format_vector(t, row, column))
             let m = count_of_1(t);
             if (m < min) {
               min = m;
@@ -464,15 +511,16 @@
               const freevar_num = row * column - i;
               console.log('解数量:', 2 ** freevar_num);
               let result = to_result(matrix);
-              console.log(format_vector(result, 2, 2))
+              // console.log('特解', format_vector(result, 2, 2))
               if (freevar_num > 10) return result;
               let var_rule = [];
               for (let j = 0; j < i; j++) {
                 let t = new Bitmap(freevar_num);
                 for (let k = 0; k < freevar_num; k++) {
-                  t.set(k, matrix.get(j * (row + column + 1) + row - k - 1) & 1)
+                  t.set(k, matrix.get(j * (row * column + 1) + row * column - k - 1))
                 }
                 var_rule.push(t)
+                // console.log(format_vector(t, 1, freevar_num))
               }
               return find_optimal_solution(result, var_rule)
             }
@@ -506,18 +554,11 @@
       
       let row = this.row;
       let column = this.column;
-      let m = gen_solve_matrix(row, column);
+      let m = gen_solve_matrix(row, column, this.init_matrix);
       // console.log(format_solve_matrix(m,  row, column))
-      let res = gauss_elimination(m, row, column);
+      this.result = gauss_elimination(m, row, column);
       // console.log(format_vector(res, row, column));
-      
-      for (let i = 0; i < this.row * this.column; i++) {
-        let t = this.table.querySelector(`td[data-index="${i}"]`);
-        t.classList.add('open');
-        if (res.get(i)) {
-          t.classList.add('star')
-        }
-      }
+      if (!this.result) this.tip.innerText = '当前游戏无解！'
     }
     /**
      * 游戏胜利
@@ -536,7 +577,13 @@
       this.container.querySelector('.bigger_wapper').classList.add('on');
       this.container.querySelector('.game_container').classList.add('win');
       
-      this.solve();
+      for (let i = 0; i < this.row * this.column; i++) {
+        let t = this.table.querySelector(`td[data-index="${i}"]`);
+        t.classList.add('open');
+        if (this.result && this.result.get(i)) {
+          t.classList.add('star')
+        }
+      }
     }
     /**
      * 重置
@@ -546,14 +593,19 @@
       this.ended = false;
       clearInterval(this.timer);
       this.start_time = 0;
-      this.opened_count = 0;
       this.time.innerText = '00:00';
-      this.blockLeft.innerText = this.row * this.column;
+      this.click_count = 0;
+      this.clickTimes.innerText = this.click_count;
+      this.blockLeft.innerText = this.row * this.column - count_of_1(this.init_matrix);
       this.container.querySelector('.game_container').classList.remove('win');
       
       for (const t of this.table.querySelectorAll('td')) {
-        t.classList.remove('open');
+        if (!this.container.querySelector('.game_container').classList.contains('edit')) t.classList.remove('open');
+        else t.classList.remove('star');
         t.classList.remove('boom');
+        let index = parseInt(t.getAttribute('data-index'));
+        if (this.init_matrix.get(index)) t.classList.add('open');
+        else t.classList.remove('open')
       }
     }
   }
@@ -564,6 +616,7 @@
       '.container', 
       parseInt(params.get('row')), 
       parseInt(params.get('column')),
+      parseInt(params.get('init')),
     );
   })
 })();

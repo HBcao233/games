@@ -153,11 +153,11 @@
      * 创建表格
      */
     spawnTable() {
-      history.replaceState({}, '', '?' + new URLSearchParams({
-        row: this.row,
-        column: this.column,
-        mine: this.mineCount,
-      }).toString());
+      let params = new URLSearchParams(window.location.search);
+      params.set('row', this.row);
+      params.set('column', this.column);
+      history.replaceState({}, '', '?' + new URLSearchParams(params).toString());
+      
       this.settings_form.querySelector('[name="row"]').value = this.row;
       this.settings_form.querySelector('[name="column"]').value = this.column;
       this.settings_form.querySelector('[name="mine"]').value = this.mineCount;

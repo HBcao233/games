@@ -15,3 +15,11 @@
   font-size: 25px;
   font-weight: bold;
 }
+
+.game_container.edit {
+  border: none;
+}
+.game_container.edit::before {
+  background: conic-gradient(#ff8aac, #fff, #ff8aac, #fff, #ff8aac, #fff, #ff8aac, #fff, #ff8aac, #fff, #ff8aac, #fff, #ff8aac);
+  animation-duration: 5s;
+}
