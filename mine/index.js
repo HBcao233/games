@@ -374,6 +374,7 @@
     openBlock(t) {
       if (t.classList.contains('open')) return;
       t.classList.add('open');
+      t.classList.remove('flag')
       this.opened_count++;
       if (this.opened_count >= this.row * this.column - this.mineCount) {
         this.gameWin();
