@@ -41,6 +41,9 @@ a:active {
   padding: 0 5px;
   margin: 0 auto;
 }
+.mobile .container {
+  width: calc(100% - 10px);
+}
 
 .game_container {
   position: relative;
@@ -52,14 +55,7 @@ a:active {
   margin-top: 50px;
   overflow: hidden;
 }
-@media screen and (max-width: 300px) {
-  .container {
-    width: calc(100% - 10px);
-  }
-  .game_container {
-    width: calc(100% - 40px);
-  }
-}
+
 .game_container.win {
   border: none;
 }

@@ -12,6 +12,10 @@
     if (h > 0) return h + ':' + m + ':' + s;
     return m + ':' + s;
   }
+  const isMobile = () => {
+    if(navigator && navigator.userAgent) return /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    return window.innerWidth <= 300;
+  }
 
   /**
    * 创建 Element
@@ -610,7 +614,15 @@
     }
   }
   
+  window.addEventListener('resize', () => {
+    if (isMobile()) document.body.classList.add('mobile')
+    else document.body.classList.remove('mobile')
+  });
+    
   window.addEventListener('load', () => {
+    if (isMobile()) document.body.classList.add('mobile')
+    else document.body.classList.remove('mobile')
+    
     let params = new URLSearchParams(window.location.search);
     new Game(
       '.container', 
