@@ -35,7 +35,7 @@ a:active {
 }
 
 .container {
-  width: calc(100% - 10px);
+  width: 500px;
   color: white;
   font-size: 17px;
   padding: 0 5px;
@@ -52,8 +52,11 @@ a:active {
   overflow: hidden;
 }
 @media screen and (max-width: 300px) {
+  .container {
+    width: calc(100% - 10px);
+  }
   .game_container {
-    min-width: calc(100% - 40px);
+    width: calc(100% - 40px);
   }
 }
 .game_container.win {
