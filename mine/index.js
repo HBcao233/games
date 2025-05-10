@@ -479,7 +479,10 @@
       else if (ms < 100) ms = '0' + ms
       let t = formatTime(Math.floor(time / 1000)) + '.' + ms; 
       this.tip.innerText = '你赢啦！用时: ' + t;
-      alert('你赢啦！用时: ' + t);
+      this.container.querySelector('.game_container').classList.add('win');
+      for (const t of this.table.querySelectorAll('td')) {
+        for(let i=0; i<8; i++) t.classList.remove('m' + (i + 1));
+      }
     }
     /**
      * 重置
@@ -493,8 +496,9 @@
       this.time.innerText = '00:00';
       this.mineLeft.innerText = this.mineCount;
       this.mines = new Bitmap(this.row * this.column);
-      for (let i = 0; i < this.row * this.column; i++) {
-        let t = this.table.querySelector(`td[data-index="${i}"]`);
+      this.container.querySelector('.game_container').classList.remove('win');
+      
+      for (const t of this.table.querySelectorAll('td')) {
         t.checked = false;
         t.classList.remove('open');
         t.classList.remove('star');

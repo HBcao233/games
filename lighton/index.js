@@ -534,6 +534,7 @@
       let t = formatTime(Math.floor(time / 1000)) + '.' + ms; 
       this.tip.innerText = '你赢啦！用时: ' + t;
       this.container.querySelector('.bigger_wapper').classList.add('on');
+      this.container.querySelector('.game_container').classList.add('win');
       
       this.solve();
     }
@@ -548,10 +549,11 @@
       this.opened_count = 0;
       this.time.innerText = '00:00';
       this.blockLeft.innerText = this.row * this.column;
+      this.container.querySelector('.game_container').classList.remove('win');
       
-      for (let i = 0; i < this.row * this.column; i++) {
-        let t = this.table.querySelector(`td[data-index="${i}"]`);
+      for (const t of this.table.querySelectorAll('td')) {
         t.classList.remove('open');
+        t.classList.remove('boom');
       }
     }
   }

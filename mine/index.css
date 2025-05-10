@@ -44,21 +44,58 @@ a:active {
 .game_container {
   position: relative;
   margin: 0 auto;
-  padding: 5px 20px;
+  padding: 5px 0;
   background-color: #FF8AAC;
   border: 2px solid #f46891;
   border-radius: 10px;
   margin-top: 50px;
-  overflow: visible;
+  overflow: hidden;
 }
 @media screen and (max-width: 300px) {
   .game_container {
     min-width: calc(100% - 40px);
   }
 }
+.game_container.win {
+  border: none;
+}
+.game_container.win::after,
+.game_container.win::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+.game_container::after {
+  background-color: #ff8aac;
+  border-radius: 10px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+}
+.game_container::before {
+  animation: rotation 1s linear infinite;
+  background: conic-gradient(red, lime, yellow, aqua, blue, magenta, red);
+  width: 200%;
+  height: 200%;
+} 
+@keyframes rotation {
+  from{
+    transform: translateX(-50%) translateY(-50%) rotate(0deg);
+  }
+  to{
+    transform: translateX(-50%) translateY(-50%) rotate(360deg);
+  }
+}
+.game_container > div,
+.game_container > table{
+  position: relative;
+  z-index: 3;
+}
 
 .game_table {
-  width: 100%;
+  width: calc(100% - 60px);
+  margin: 5px auto;
   background-color: #f6a2ff;
   border-radius: 5px;
   background-image: url('./129216710_p0.jpg');
@@ -199,22 +236,29 @@ a:active {
   font-size: 15px;
 }
 
-.time_wrap {
-  width: 100%;
-  position: relative;
+.bottom_controls {
+  transform: translateY(5px);
 }
 
-.time_wrap .time {
+.bottom_controls .time_wrap {
+  width: 100%;
+  position: relative;
+  bottom: 5px;
+}
+
+.bottom_controls .time_wrap .time {
   margin: 0 auto;
   width: fit-content;
   height: 27px;
   line-height: 30px;
 }
 
-.mine_left_wrap {
+.bottom_controls .mine_left_wrap {
   position: absolute;
   left: 0;
   bottom: 4px;
+  display: flex;
+  align-items: center;
 }
 
 .bottom_controls .settings {
