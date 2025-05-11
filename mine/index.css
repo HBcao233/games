@@ -228,6 +228,7 @@ a:active {
 .tip_wrap {
   width: 100%;
   position: relative;
+  transform: translateY(7px);
 }
 
 .tip_wrap .tip {

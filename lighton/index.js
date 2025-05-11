@@ -223,6 +223,25 @@
       }
       
     }
+    
+    setInit(init) {
+      if (!init) init = 0;
+      let init_matrix = new Bitmap(this.row * this.column);
+      let i = 0;
+      while (init != 0) {
+        init_matrix.set(i, init % 2);
+        init = Math.floor(init / 2);
+        i++;
+      }
+      
+      this.init_matrix = init_matrix;
+      let params = new URLSearchParams(window.location.search);
+      params.set('init', init);
+      history.replaceState({}, '', '?' + params.toString());
+      
+      this.reset();
+      this.solve();
+    }
 
     /**
      * 初始化
@@ -239,14 +258,20 @@
       // 监听按钮/滑块点击
       document.addEventListener('click', (e) => {
         const t = e.target;
+        // 滑块
         if (t.classList.contains('slider')) {
           t.classList.toggle('on');
           
           if (t.classList.contains('show-numbers')) {
             this.table.classList.toggle('show-numbers');
+            return;
+          }
+          if (t.classList.contains('flag-mode')) {
+            this.table.classList.toggle('flag-mode');
           }
           return;
         } 
+        
         // 变大按钮
         if (t.classList.contains('bigger')) {
           if (this.row <= this.column) {
@@ -265,27 +290,28 @@
             this.container.querySelector('.game_container').classList.add('edit');
             t.innerText = '退出编辑模式';
             this.reset()
+            this.tip.innerText = '点击格子设置初始状态'
           } else {
             this.container.querySelector('.game_container').classList.remove('edit');
             t.innerText = '进入编辑模式';
+            
             let init = 0;
-            let init_matrix = new Bitmap(this.row * this.column);
             for (let i = 0; i < this.row * this.column; i++) {
               let t = this.table.querySelector(`td[data-index="${i}"]`);
               let v = 0;
               if (t.classList.contains('open')) v = 1;
               init += v * (2 ** i);
-              init_matrix.set(i, v);
             }
-            
-            // console.log(init)
-            this.init_matrix = init_matrix;
-            let params = new URLSearchParams(window.location.search);
-            params.set('init', init);
-            history.replaceState({}, '', '?' + params.toString());
-            this.solve();
+            this.setInit(init);
           }
+          return;
         }
+        // 重置初始状态按钮
+        if (t.classList.contains('reset-init')) {
+          this.setInit();
+          return;
+        }
+        
       });
       this.table.addEventListener('click', (e) => {
         if (e.target.tagName == 'TD') {
@@ -360,6 +386,7 @@
       if (j != this.column - 1) res.push(index + 1);
       return res;
     }
+    
     /**
      * 点击格子
      * @param {HTMLElement} t 
@@ -368,6 +395,9 @@
       if (this.container.querySelector('.game_container').classList.contains('edit')) {
         t.classList.toggle('open');
         return;
+      }
+      if (this.table.classList.contains('flag-mode')) {
+        t.classList.toggle('flag')
       }
       
       let index = parseInt(t.getAttribute('data-index'));
