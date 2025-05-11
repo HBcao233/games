@@ -2,14 +2,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta property="og:title" content="点灯游戏">
-  <meta property="og:description" content="《点灯游戏》是一款智力类游戏。《点灯游戏》中玩家面对一个N行N列的灯阵，目标是在最短时间内通过最少的点击次数将所有灯点亮。每次点击一盏灯，该灯及其上下左右的灯（如果存在）状态会改变">
+  <meta property="og:title" content="点灯游戏Plus">
+  <meta property="og:description" content="在点灯游戏Plus中，每一关被分成了若干小关，每一小关都是一个初始状态不同的点灯游戏，并给出了过关最少步骤，你需要使用尽可能少的点击次数完成所有小关卡。">
   
-  <title>点灯游戏</title>
-  <link rel="stylesheet" href="../mine/index.css?v=8">
-  <link rel="stylesheet" href="./index.css?v=8">
+  <title>点灯游戏Plus</title>
+  <link rel="stylesheet" href="../mine/index.css?v=1">
+  <link rel="stylesheet" href="../lighton/index.css?v=1">
+  <link rel="stylesheet" href="./index.css?v=1">
 
-  <script src="./index.js?v=8"></script>
+  <script src="./index.js?v=1"></script>
 </head>
 
 <body>
@@ -17,6 +18,16 @@
     <a class="back" href="..">
       <span>&lt;</span>
     </a>
+    <div class="goal_container">
+      <div class="goals_wapper">
+        <span class="text">目标</span>
+        <div class="goals"></div>
+      </div>
+      <div class="clicks_wapper">
+        <span class="text">点击</span>
+        <div class="clicks"></div>
+      </div>
+    </div>
     <div class="game_container">
       <div class="top_controls">
         <div class="tip_wrap">
@@ -63,22 +74,27 @@
       
     </div>
     <div class="finish_controls">
-      <button class="btn bigger" type="button">变大！</button>
+      <button class="btn reset" type="button">重来</button>
+      <button class="btn longer" type="button">变长</button>
+      <button class="btn bigger" type="button">变大</button>
+      <div style="width: 100%;"></div>
+      <div style="width: 72px;"></div>
+      <button class="btn shorter" type="button">变短</button>
+      <button class="btn smaller" type="button">变小</button>
     </div>
     
     <form class="settings_form">
       <div class="left">
-        <button type="button" class="btn difficulty" value="0">2x2</button>
-        <button type="button" class="btn difficulty" value="1">3x3</button><br>
+        <button type="button" class="btn difficulty" value="1">3x3</button>
         <button type="button" class="btn difficulty" value="2">4x4</button>
-        <button type="button" class="btn difficulty" value="3">5x5</button><br>
+        <br>
         <label class="input">
           <span>行数</span>
-          <input type="number" name="row" min="5" max="100" value="9">
+          <input type="number" name="row" min="5" max="100" value="3">
         </label>
         <label class="input">
           <span>列数</span>
-          <input type="number" name="column" min="5" max="100" value="9">
+          <input type="number" name="column" min="5" max="100" value="3">
         </label>
         <button class="btn ok" type="button">确定</button>
       </div>
@@ -95,14 +111,12 @@
             <div class="slider-dot"></div>
           </div>
         </label>
-        <button class="btn edit" type="button">进入编辑模式</button>
-        <button class="btn reset-init" type="button">重置初始状态</button>
       </div>
     </form>
     
     <div class="introduction">
-      <h2 class="title">点灯游戏</h2>
-      <p style="text-indent:2em">《点灯游戏》是一款智力类游戏。《点灯游戏》中玩家面对一个N行N列的灯阵，目标是在最短时间内通过最少的点击次数将所有灯点亮。每次点击一盏灯，该灯及其上下左右的灯（如果存在）状态会改变。（游戏太简单了？来试试<a href="../lighton_plus/" style="font-weight: bold;">点灯游戏Plus</a>）</p>
+      <h2 class="title">点灯游戏Plus</h2>
+      <p style="text-indent:2em">在点灯游戏Plus中，每一关被分成了若干小关，每一小关都是一个初始状态不同的点灯游戏，并给出了过关最少步骤，你需要使用尽可能少的点击次数完成所有小关卡。（如果你不熟悉点灯游戏的规则，点击<a href="../lighton/" style="font-weight: bold;">这里</a>）</p>
       <br>
       <p>操作方式：</p>
       <ul style="-webkit-margin-start: 1em;">
@@ -111,7 +125,7 @@
       <br>
       <p>胜利条件：</p>
       <ul style="-webkit-margin-start: 1em;">
-        <li>打开所有格子</li>
+        <li>用尽可能少的点击打开每一小关的所有格子</li>
       </ul>
     </div>
   </div>

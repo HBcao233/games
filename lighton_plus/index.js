@@ -16,6 +16,16 @@
     if(navigator && navigator.userAgent) return /Mobi|Android|iPhone/i.test(navigator.userAgent);
     return window.innerWidth <= 300;
   }
+  function yieldToMain() {
+    if (globalThis.scheduler?.yield) {
+      return scheduler.yield();
+    }
+
+    // Fall back to yielding with setTimeout.
+    return new Promise(resolve => {
+      setTimeout(resolve, 0);
+    });
+  }
 
   /**
    * 创建 Element
@@ -140,55 +150,81 @@
   class Game {
     static instance;
     container;
-    row = 2;
-    column = 2;
+    row = 3;
+    column = 3;
     start_time = 0;
     ended = false;
     timer;
-    click_count = 0;
+    index = 0;
+    click_count = [];
+    long = 3;
+    checkpoint = null;
+    checkpoints = {}
 
-    constructor(containerSelector, row, column, init) {
+    constructor(containerSelector, row, column, long, checkpoint) {
       if (Game.instance) {
         return Game.instance;
       }
-      if (!init) init = 0;
-      
       Game.instance = this;
+      
       this.container = document.querySelector(containerSelector);
+      this.goals = this.container.querySelector('.goals');
+      this.clicks = this.container.querySelector('.clicks');
       this.table = this.container.querySelector('.game_table');
       this.time = this.container.querySelector('.bottom_controls .time');
       this.tip = this.container.querySelector('.top_controls .tip');
-      this.winBtn = this.container.querySelector('.top_controls .win');
-      this.resetBtn = this.container.querySelector('.top_controls .reset');
       this.clickTimes = this.container.querySelector('.bottom_controls .click_times')
       this.blockLeft = this.container.querySelector('.bottom_controls .block_left');
       this.settingsBtn = this.container.querySelector('.bottom_controls .settings');
       this.settings_form = this.container.querySelector('.settings_form');
-      if (row) this.row = row;
-      if (column) this.column = column;
       
-      let i = 0;
-      let init_matrix = new Bitmap(this.row * this.column)
-      while(init != 0) {
-        init_matrix.set(i, init % 2);
-        init = Math.floor(init / 2);
-        i++;
-      }
-      this.init_matrix = init_matrix;
+      if (row) this.row = parseInt(row);
+      if (column) this.column = parseInt(column);
+      if (long) this.long = parseInt(long);
+      this.solve();
+      // console.log(this.checkpoints)
+      const ok = this.spawnCheckpoint(checkpoint);
+      if (!ok) return;
       
       this.init();
+    }
+    
+    spawnCheckpoint(checkpoint) {
+      let arr = Object.keys(this.checkpoints)
+      if (this.long > arr.length) {
+        this.tip.innerText = '没有这么长的关卡'
+        return false
+      }
+      if (!checkpoint || !isArrayLike(checkpoint)) {
+        checkpoint = [];
+      }
+      for (let i = checkpoint.length - 1; i > 0; i--) {
+        if (arr.indexOf(checkpoint[i]+'') === -1) {
+          checkpoint.splice(i, 1);
+        }
+      }
+      while (checkpoint.length < this.long) {
+        let index = Math.floor(Math.random() * arr.length);
+        if (checkpoint.indexOf(arr[index]) === -1) checkpoint.push(arr[index]);
+      }
+      this.checkpoint = checkpoint;
+      return true;
+    }
+    
+    setUrl() {
+      let params = new URLSearchParams(window.location.search);
+      params.set('row', this.row);
+      params.set('column', this.column);
+      params.set('long', this.long);
+      params.set('checkpoint', this.checkpoint.join(','));
+      history.replaceState({}, '', '?' + params.toString());
     }
 
     /**
      * 创建表格
      */
     spawnTable() {
-      let params = new URLSearchParams(window.location.search);
-      // console.log(params)
-      params.set('row', this.row);
-      params.set('column', this.column);
-      history.replaceState({}, '', '?' + new URLSearchParams(params).toString());
-      this.solve();
+      this.setUrl();
       
       this.settings_form.querySelector('[name="row"]').value = this.row;
       this.settings_form.querySelector('[name="column"]').value = this.column;
@@ -224,36 +260,65 @@
       
     }
     
-    setInit(init) {
-      if (!init) init = 0;
-      let params = new URLSearchParams(window.location.search);
-      params.set('init', init);
-      history.replaceState({}, '', '?' + params.toString());
-      
-      let init_matrix = new Bitmap(this.row * this.column);
-      let i = 0;
-      while (init != 0) {
-        init_matrix.set(i, init % 2);
-        init = Math.floor(init / 2);
-        i++;
+    spawnGoal() {
+      this.goals.innerHTML = '';
+      this.clicks.innerHTML = '';
+      for (let i = 0; i < this.checkpoint.length; i++) {
+        this.goals.appendChild(tag('div', {
+          class: 'goal',
+          attrs: { 'data-index': i },
+          innerText: this.checkpoint[i],
+        }));
+        this.clicks.appendChild(tag('div', {
+          class: 'click' + (i == 0 ? ' playing' : ''),
+          attrs: { 'data-index': i },
+          innerText: '',
+        }))
+        this.click_count[i] = 0;
       }
-      
-      this.init_matrix = init_matrix;
-      this.reset();
-      this.solve();
     }
-
+    
+    setInit() {
+      let num = this.checkpoint[this.index];
+      let arr = this.checkpoints[num + ''];
+      // console.log(arr)
+      let r = Math.floor(Math.random() * arr.length)
+      let init = arr[r];
+      // console.log(init);
+      let i = 0;
+      this.init_opens = 0;
+      let c = 10000;
+      while (init != 0) {
+        if (c == 0) {
+          this.tip.innerText = '错误: 循环次数过多'
+          return
+        }
+        let t = this.table.querySelector(`td[data-index="${i}"]`);
+        t.classList.remove('open')
+        if (init % 2) {
+          t.classList.add('open');
+          this.init_opens++;
+        }
+        init = Math.floor(init / 2)
+        i++;
+        c--;
+      }
+      for (; i < this.row * this.column; i++) {
+        let t = this.table.querySelector(`td[data-index="${i}"]`);
+        t.classList.remove('open')
+      }
+    }
+    
     /**
      * 初始化
      */
     init() {
       this.spawnTable();
+      this.spawnGoal();
       
-      for (let i = 0; i < this.row * this.column; i++) {
-        let t = this.table.querySelector(`td[data-index="${i}"]`);
-        if (this.init_matrix.get(i)) t.classList.add('open')
-      }
-      this.blockLeft.innerText = this.row * this.column - count_of_1(this.init_matrix);
+      this.setInit();
+      
+      this.blockLeft.innerText = this.row * this.column - this.init_opens;
       
       // 监听按钮/滑块点击
       document.addEventListener('click', (e) => {
@@ -272,43 +337,52 @@
           return;
         } 
         
-        // 变大按钮
-        if (t.classList.contains('bigger')) {
-          if (this.row <= this.column) {
-            this.row++;
-          } else {
-            this.column++;
-          }
-          this.spawnTable();
+        if (t.closest('.reset')) {
           this.reset();
-          this.container.querySelector('.finish_controls').classList.remove('on');
-          return
-        }
-        // 编辑模式按钮
-        if (t.classList.contains('edit')) {
-          if (!this.container.querySelector('.game_container').classList.contains('edit')) {
-            this.container.querySelector('.game_container').classList.add('edit');
-            t.innerText = '退出编辑模式';
-            this.reset()
-            this.tip.innerText = '点击格子设置初始状态'
-          } else {
-            this.container.querySelector('.game_container').classList.remove('edit');
-            t.innerText = '进入编辑模式';
-            
-            let init = 0;
-            for (let i = 0; i < this.row * this.column; i++) {
-              let t = this.table.querySelector(`td[data-index="${i}"]`);
-              let v = 0;
-              if (t.classList.contains('open')) v = 1;
-              init += v * (2 ** i);
-            }
-            this.setInit(init);
-          }
           return;
         }
-        // 重置初始状态按钮
-        if (t.classList.contains('reset-init')) {
-          this.setInit();
+        if (t.closest('.top_controls .win')) {
+          this.gameWin();
+          return;
+        }
+        if (t.closest('.finish_controls')) {
+          let flag = false;
+          if (t.classList.contains('longer')) {
+            this.long += 2;
+          }
+          if (t.classList.contains('shorter')) {
+            if (this.long <= 3) {
+              this.tip.innerText = '再小会没感觉的~'
+              return
+            }
+            this.long -= 2;
+          }
+          // 变大按钮
+          if (t.classList.contains('bigger')) {
+            if (this.row >= 4 && this.column >= 4) {
+              this.tip.innerText = '再大会受不了的~'
+              return
+            }
+            if (this.row <= this.column) this.row++;
+            else this.column++;
+            flag = true;
+          }
+          if (t.classList.contains('smaller')) {
+            if (this.row <= 3 && this.column <= 3) {
+              this.tip.innerText = '再小也太杂鱼了吧~'
+              return
+            }
+            if (this.column >= this.row) this.column--;
+            else this.row--;
+            flag = true;
+          }
+          if (flag) this.solve();
+          const ok = this.spawnCheckpoint();
+          if (!ok) return;
+          this.spawnTable();
+          this.spawnGoal();
+          this.reset();
+          this.container.querySelector('.finish_controls').classList.remove('on');
           return;
         }
         
@@ -319,19 +393,10 @@
         };
       })
       
-      this.winBtn.addEventListener('click', () => {
-        if (this.ended) {
-          this.tip.innerText = '游戏已经胜利啦, 点击右边按钮重置';
-          return;
-        }
-        this.gameWin();
-      });
-      this.resetBtn.addEventListener('click', () => {
-        this.reset();
-      })
       this.settingsBtn.addEventListener('click', () => {
         this.settings_form.classList.toggle('on');
       })
+      
       let r = this.settings_form.querySelector('[name="row"]');
       let c = this.settings_form.querySelector('[name="column"]');
       this.settings_form.addEventListener('click', (e) => {
@@ -360,7 +425,12 @@
           let column = parseInt(c.value)
           this.row = row;
           this.column = column;
+          
+          this.solve();
+          const ok = this.spawnCheckpoint();
+          if (!ok) return;
           this.spawnTable();
+          this.spawnGoal();
           this.reset();
         }
       })
@@ -422,8 +492,10 @@
         t.classList.toggle('open')
       }
       
-      this.click_count++;
-      this.clickTimes.innerText = this.click_count;
+      if(!this.click_count[this.index]) this.click_count[this.index] = 0;
+      this.click_count[this.index]++;
+      this.clickTimes.innerText = this.click_count.reduce((a, i) => a + i, 0);
+      this.clicks.children[this.index].innerText = this.click_count[this.index];
       
       let blockLeft = this.row * this.column;
       for (const t of this.table.querySelectorAll('td')) {
@@ -431,12 +503,12 @@
       }
       this.blockLeft.innerText = blockLeft;
       if (blockLeft == 0) {
-        this.gameWin();
+        this.nextLevel();
       }
     }
     
     /**
-     * 求解点灯游戏
+     * 生成 checkpoints
      */
     solve() {
       /**
@@ -543,10 +615,10 @@
             // 多解时返回一个解
             if (!matrix.get(i * (row * column + 1) + row * column)) {
               const freevar_num = row * column - i;
-              console.log('解数量:', 2 ** freevar_num);
+              // console.log('解数量:', 2 ** freevar_num);
               let result = to_result(matrix);
               // console.log('特解', format_vector(result, 2, 2))
-              if (freevar_num > 10) return result;
+              if (freevar_num > 10) return false;
               let var_rule = [];
               for (let j = 0; j < i; j++) {
                 let t = new Bitmap(freevar_num);
@@ -585,15 +657,62 @@
         return to_result(matrix)
       }
       
-      
-      let row = this.row;
-      let column = this.column;
-      let m = gen_solve_matrix(row, column, this.init_matrix);
-      // console.log(format_solve_matrix(m,  row, column))
-      this.result = gauss_elimination(m, row, column);
-      // console.log(format_vector(res, row, column));
-      if (!this.result) this.tip.innerText = '当前游戏无解！'
+      this.tip.innerText = '生成关卡中...';
+      yieldToMain();
+      let results = [];
+      for (let i = 0; i < 2 ** (this.row * this.column) - 1; i++) {
+        let row = this.row;
+        let column = this.column;
+        let init_matrix = new Bitmap(row * column);
+        let j = 0;
+        let ii = i;
+        while (ii != 0) {
+          init_matrix.set(j, ii % 2);
+          ii = Math.floor(ii / 2);
+          j++;
+        }
+        let m = gen_solve_matrix(row, column, init_matrix);
+        // console.log(format_solve_matrix(m,  row, column))
+        let result = gauss_elimination(m, row, column);
+        // console.log(result)
+        if (!result) {
+          continue;
+        }
+        let count = count_of_1(result);
+        results.push(count);
+      }
+      // console.log(results)
+      let checkpoints = {};
+      for (let i = 0; i < results.length; i++) {
+        if (!checkpoints[results[i] + '']) checkpoints[results[i] + ''] = [];
+        checkpoints[results[i] + ''].push(i);
+      }
+      // console.log(checkpoints)
+      for (const [k, v] of Object.entries(checkpoints)) {
+        if (v.length < 10) {
+          delete checkpoints[k]
+        }
+      }
+      // console.log(checkpoints)
+      this.checkpoints = checkpoints;
+      this.tip.innerText = '';
     }
+    
+    /**
+     * 下一小关
+     */
+    nextLevel() {
+      this.clicks.children[this.index].classList.remove('playing');
+      this.clicks.children[this.index].classList.add('finish');
+      if (this.index == this.checkpoint.length - 1) {
+        this.gameWin();
+        return
+      }
+      this.index++;
+      this.clicks.children[this.index].classList.add('playing');
+      this.setInit()
+    }
+    
     /**
      * 游戏胜利
      */
@@ -607,40 +726,39 @@
       if (ms < 10) ms = '00' + ms
       else if (ms < 100) ms = '0' + ms
       let t = formatTime(Math.floor(time / 1000)) + '.' + ms; 
-      this.tip.innerText = '你赢啦！用时: ' + t;
+      let click = this.click_count.reduce((a, i) => a + i, 0)
+      this.tip.innerText = '你赢啦！用时: ' + t + ' 点击: ' + click;
       this.container.querySelector('.finish_controls').classList.add('on');
       this.container.querySelector('.game_container').classList.add('win');
-      
-      for (let i = 0; i < this.row * this.column; i++) {
-        let t = this.table.querySelector(`td[data-index="${i}"]`);
-        t.classList.add('open');
-        if (this.result && this.result.get(i)) {
-          t.classList.add('star')
-        }
-      }
     }
     /**
      * 重置
      */
     reset() {
+      this.index = 0
       this.tip.innerText = '';
       this.ended = false;
       clearInterval(this.timer);
       this.start_time = 0;
       this.time.innerText = '00:00';
-      this.click_count = 0;
-      this.clickTimes.innerText = this.click_count;
-      this.blockLeft.innerText = this.row * this.column - count_of_1(this.init_matrix);
+      this.click_count = [];
+      this.clickTimes.innerText = 0;
+      
       this.container.querySelector('.game_container').classList.remove('win');
       
       for (const t of this.table.querySelectorAll('td')) {
-        if (!this.container.querySelector('.game_container').classList.contains('edit')) t.classList.remove('open');
-        else t.classList.remove('star');
-        t.classList.remove('boom');
-        let index = parseInt(t.getAttribute('data-index'));
-        if (this.init_matrix.get(index)) t.classList.add('open');
-        else t.classList.remove('open')
+        t.classList.remove('star');
+        t.classList.remove('open');
       }
+      this.setInit()
+      this.blockLeft.innerText = this.row * this.column - this.init_opens;
+      
+      for (const t of this.clicks.children) {
+        t.innerText = '';
+        t.classList.remove('playing')
+        t.classList.remove('finish')
+      }
+      this.clicks.children[0].classList.add('playing')
     }
   }
   
@@ -654,11 +772,19 @@
     else document.body.classList.remove('mobile')
     
     let params = new URLSearchParams(window.location.search);
+    let row = parseInt(params.get('row'));
+    let column = parseInt(params.get('column'));
+    let long = parseInt(params.get('long'));
+    let checkpoint = null;
+    if (params.get('checkpoint')) {
+      checkpoint = params.get('checkpoint').split(',').map(i => parseInt(i))
+    }
     new Game(
       '.container', 
-      parseInt(params.get('row')), 
-      parseInt(params.get('column')),
-      parseInt(params.get('init')),
+      row, 
+      column,
+      long,
+      checkpoint,
     );
   })
 })();

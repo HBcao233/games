@@ -4,16 +4,16 @@
   bottom: 4px;
 }
 
-.bigger_wapper {
+.finish_controls {
   display: none;
   justify-content: center;
 }
-.bigger_wapper.on {
+.finish_controls.on {
   display: flex;
 }
-.bigger {
-  font-size: 25px;
-  font-weight: bold;
+.finish_controls .btn {
+  font-size: 20px;
+  margin: 5px;
 }
 
 .game_container.edit {

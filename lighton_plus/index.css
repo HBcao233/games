@@ -1,0 +1,44 @@
+.game_container {
+  margin-top: 30px;
+}
+
+.finish_controls {
+  flex-flow: wrap;
+}
+
+.goal_container {
+  width: fit-content;
+  border: 2px solid #ff8aac;
+  border-radius: 10px;
+  color: #ff8aac;
+  padding: 5px;
+}
+
+.goals_wapper,
+.clicks_wapper {
+  display: flex;
+  align-items: center;
+}
+
+.goals,
+.clicks {
+  display: flex;
+}
+
+.goal, 
+.click {
+  width: 15px;
+  height: 20px;
+  border-radius: 10px;
+  padding: 3px 5px;
+  margin: 3px;
+  text-align: center;
+  border: 2px solid transparent;
+}
+.goal,
+.click.playing {
+  border-color: #ff8aac;
+}
+.click.finish {
+  border-color: green;
+}
