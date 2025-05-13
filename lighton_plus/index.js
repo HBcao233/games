@@ -257,6 +257,14 @@
         t.style.height = w1;
         t.style.fontSize = w/this.row < 30 ? 25: 28;
       }
+      this.container.querySelector('.fake_table').style.width = w;
+      this.container.querySelector('.fake_table').style.height = w + 30;
+      
+      if (this.table.getBoundingClientRect().width > this.container.querySelector('.game_container').getBoundingClientRect().width - 10) {
+        this.table.style.left = '10px';
+        this.table.style.right = '0';
+        this.table.style.transform = 'unset';
+      }
       
     }
     

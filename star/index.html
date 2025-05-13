@@ -2,15 +2,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta property="og:title" content="点灯游戏Plus">
-  <meta property="og:description" content="在点灯游戏Plus中，每一关被分成了若干小关，每一小关都是一个初始状态不同的点灯游戏，并给出了过关最少步骤，你需要使用尽可能少的点击次数完成所有小关卡。">
+  <meta property="og:title" content="星之战">
+  <meta property="og:description" content="星之战是一种逻辑解谜游戏，其规则简单，解题过程富有挑战性。游戏规则很简单，按如下要求在格子上放置星星：1. 任意两颗星星不能在横向、纵向或对角上相邻；2. 对于1★谜题，每行、每列及每个区块（黑色粗线条标识）上需放置1颗星星；3. 对于2★谜题, 每行、每列及每个区块（黑色粗线条标识）上需放置2颗星星，以此类推。">
   
-  <title>点灯游戏Plus</title>
-  <link rel="stylesheet" href="../mine/index.css?v=2">
-  <link rel="stylesheet" href="../lighton/index.css?v=2">
+  <title>星之战</title>
+  <link rel="stylesheet" href="../mine/index.css?v=1">
   <link rel="stylesheet" href="./index.css?v=1">
 
-  <script src="./index.js?v=2"></script>
+  <script src="./index.js?v=1"></script>
 </head>
 
 <body>
@@ -18,16 +17,6 @@
     <a class="back" href="..">
       <span>&lt;</span>
     </a>
-    <div class="goal_container">
-      <div class="goals_wapper">
-        <span class="text">目标</span>
-        <div class="goals"></div>
-      </div>
-      <div class="clicks_wapper">
-        <span class="text">点击</span>
-        <div class="clicks"></div>
-      </div>
-    </div>
     <div class="game_container">
       <div class="before">
         <div class="top_controls">
@@ -57,12 +46,13 @@
           <div class="time_wrap">
             <div class="time">00:00</div>
           </div>
-          <div class="block_left_wrap">
-            <span style="font-size: 25px; display: inline-block; transform: translateY(3px);">★</span>
-            <span class="click_times">0</span>
-            <span style="font-size: 17px; margin-left: 2px">⬜</span>
-            <span class="block_left">0</span>
-          </div>
+          <span class="text_left">
+            <span class="size" style="margin: 0 5px">5x5</span>
+            <span class="star">1</span>
+            <span style="font-size: 25px; display: inline-block; transform: translate(-3px, 3px);">&#9733;</span>
+            <br>
+            <span class="difficulty" style="margin-left: 5px">普通</span>
+          </span>
           <div class="settings">
             <svg t="1735108553622" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
               p-id="4463" width="30" height="30">
@@ -73,62 +63,51 @@
           </div>
         </div>
       </div>
-       <table class="game_table" style="background-image: url('https://i.pixiv.re/img-original/img/2024/09/23/18/22/33/122705559_p0.png');"></table>
-      
+      <table class="game_table" style="background-image: url('https://i.pixiv.re/img-original/img/2024/10/25/09/25/25/123652026_p0.png');"></table>
     </div>
     <div class="finish_controls">
-      <button class="btn reset" type="button">重来</button>
-      <button class="btn longer" type="button">变长</button>
-      <button class="btn bigger" type="button">变大</button>
-      <div style="width: 100%;"></div>
-      <div style="width: 72px;"></div>
-      <button class="btn shorter" type="button">变短</button>
-      <button class="btn smaller" type="button">变小</button>
+      <div class="group level_control">
+        <button class="last_level btn" type="button">上一关</button>
+        <button class="next_level btn" type="button">下一关</button>
+      </div>
     </div>
     
     <form class="settings_form">
       <div class="left">
-        <button type="button" class="btn difficulty" value="1">3x3</button>
-        <button type="button" class="btn difficulty" value="2">4x4</button>
-        <br>
-        <label class="input">
-          <span>行数</span>
-          <input type="number" name="row" min="5" max="100" value="3">
-        </label>
-        <label class="input">
-          <span>列数</span>
-          <input type="number" name="column" min="5" max="100" value="3">
-        </label>
-        <button class="btn ok" type="button">确定</button>
-      </div>
-      <div class="right">
         <label class="input">
           <span>显示格号</span>
           <div class="slider show-numbers" type="button">
             <div class="slider-dot"></div>
           </div>
         </label>
-        <label class="input">
-          <span>标记模式</span>
-          <div class="slider flag-mode" type="button">
-            <div class="slider-dot"></div>
-          </div>
-        </label>
+        
+      </div>
+      <div class="right">
+        
       </div>
     </form>
     
     <div class="introduction">
-      <h2 class="title">点灯游戏Plus</h2>
-      <p style="text-indent:2em">在点灯游戏Plus中，每一关被分成了若干小关，每一小关都是一个初始状态不同的点灯游戏，并给出了过关最少步骤，你需要使用尽可能少的点击次数完成所有小关卡。（如果你不熟悉点灯游戏的规则，点击<a href="../lighton/" style="font-weight: bold;">这里</a>）</p>
+      <h2 class="title">星之战</h2>
+      <p style="text-indent:2em">星之战是一种逻辑解谜游戏，其规则简单，解题过程富有挑战性。</p>
+      <br>
+      <p>游戏规则</p>
+      <p>按如下要求在格子上放置星星: </p>
+      <ul style="-webkit-margin-start: 1em;">
+        <li>任意两颗星星不能在横向、纵向或对角上相邻</li>
+        <li>对于1★谜题，每行、每列及每宫（粗线条标识）上需放置1颗星星</li>
+        <li>对于2★谜题, 每行、每列及每宫（粗线条标识）上需放置2颗星星，以此类推</li>
+      </ul>
       <br>
       <p>操作方式：</p>
       <ul style="-webkit-margin-start: 1em;">
-        <li><b>左键</b> (手机端为<b>短触</b>): 打开/关闭格子，同时上下左右格子状态反转</li>
+        <li><b>左键</b> (手机端为<b>短触</b>): 放置或收回星星</li>
+        <li><b>右键</b> (手机端为<b>长按</b>): 标记叉叉</li>
       </ul>
       <br>
       <p>胜利条件：</p>
       <ul style="-webkit-margin-start: 1em;">
-        <li>用尽可能少的点击打开每一小关的所有格子</li>
+        <li>依照规则放置完所有星星</li>
       </ul>
     </div>
   </div>

@@ -48,37 +48,38 @@ a:active {
 .game_container {
   position: relative;
   margin: 0 auto;
-  padding: 5px 0;
-  background-color: #FF8AAC;
-  border: 2px solid #f46891;
+  background-color: #ff8aac;
   border-radius: 10px;
   margin-top: 50px;
+  overflow: visible;
+}
+.game_container .before {
+  position: relative;
   overflow: hidden;
+  padding: 7px 0;
+  border-radius: 10px;
 }
-
-.game_container.win {
-  border: none;
-}
-.game_container::after,
-.game_container::before {
+.game_container .before::after,
+.game_container .before::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
-.game_container::after {
+.game_container .before::after {
   background-color: #ff8aac;
   border-radius: 10px;
   width: calc(100% - 6px);
   height: calc(100% - 6px);
 }
-.game_container::before {
-  animation: rotation 1s linear infinite;
+.game_container .before::before {
   width: 200%;
   height: 200%;
+  background: #f46891;
 } 
-.game_container.win::before {
+.game_container.win .before::before {
+  animation: rotation 1s linear infinite;
   background: conic-gradient(red, lime, yellow, aqua, blue, magenta, red);
 }
 @keyframes rotation {
@@ -89,15 +90,19 @@ a:active {
     transform: translateX(-50%) translateY(-50%) rotate(360deg);
   }
 }
-.game_container > div,
-.game_container > table{
+.game_container .before > div {
   position: relative;
   z-index: 3;
 }
 
 .game_table {
+  position: absolute;
+  top: 35px;
+  left: 50%;
+  right: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
   width: calc(100% - 60px);
-  margin: 5px auto;
   background-color: #f6a2ff;
   border-radius: 5px;
   background-repeat: 0;
@@ -105,7 +110,6 @@ a:active {
   background-size: cover;
   border-spacing: 0;
   border: 2px solid white;
-
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -125,7 +129,7 @@ a:active {
   user-select: none !important;
   transition: all .3s;
   font-size: 28px;
-  -webkit-text-stroke: .5px #fff;
+  -webkit-text-stroke: .5px #ff8aac;
 }
 
 .game_table .cell:hover {

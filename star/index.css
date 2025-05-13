@@ -1,0 +1,70 @@
+.game_table {
+  border-width: 4px;
+  position: absolute;
+}
+
+.game_table .cell.bright {
+  border-right: 3px solid #000;
+}
+
+.game_table .cell.bbottom {
+  border-bottom: 3px solid #000;
+}
+
+.game_table .cell.broken {
+  background-color: #000;
+}
+
+.game_table .cell.not::after {
+  content: '×';
+}
+
+.bottom_controls {
+  position: relative;
+}
+
+.text_left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 15px;
+}
+
+.finish_controls {
+  margin: 5px;
+  display: none;
+  border: 2px solid #ff8aac;
+}
+.finish_controls.on {
+  display: block;
+}
+.finish_controls .group {
+  width: 100%;
+  color: #ff8aac;
+  margin: 2px;
+  padding: 2px 5px;
+  border-bottom: 1px solid #eee;
+}
+.finish_controls .levels {
+  display: flex;
+}
+.finish_controls .btn {
+  font-size: 20px;
+  margin: 2px;
+  padding: 2px 0;
+  width: 70px;
+  flex-shrink: 0;
+}
+.finish_controls .btn.win {
+  border-color: green;
+}
+.finish_controls .btn.playing {
+  border-color: #ff7080;
+}
+.finish_controls .level_control {
+  display: flex;
+}
+.finish_controls .level_control .btn {
+  width: fit-content;
+  padding: 3px 5px;
+}
