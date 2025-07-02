@@ -68,3 +68,10 @@
   width: fit-content;
   padding: 3px 5px;
 }
+
+.game_table.show-numbers .cell div.numbers1 {
+  display: none;
+}
+.game_table.show-numbers1 .cell div.numbers1 {
+  display: block;
+}
