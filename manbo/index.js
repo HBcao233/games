@@ -83,7 +83,8 @@
       const totalChars = base64Str.length;
       const extraChars = totalChars % 4;
       if (extraChars === 1) {
-        throw new Error("invalid Base64 string"); // 编码正确的 Base64 字符串，后面不可能只多出来一个字符
+        return false;
+        // throw new Error("invalid Base64 string"); // 编码正确的 Base64 字符串，后面不可能只多出来一个字符
       }
       const unit4Chars = totalChars - extraChars;
       // 创建 arrayBuffer，每4个字符需要3个字节，如果最后多出来2个字符额外需要1个字节，如果最后多出来3个字符额外需要2个字节
@@ -160,7 +161,7 @@
         case isElement(e.target.closest('.decode')):
           text = input.value;
           res = b64.decode(text);
-          if (!res) res = '不是曼波字符串';
+          if (res === false) res = '不是曼波字符串';
           output.value = res;
           s.setItem('output', res);
           break;
