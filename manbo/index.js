@@ -1,5 +1,11 @@
 (function(){
   'use strict';
+  function countSubstrings(str, substring) {
+    if (substring.length === 0) {
+      return 0;
+    }
+    return str.split(substring).length - 1;
+  }
   class Base64 {
     /**
      * 代码来自https://github.com/haochuan9421/base64-pro/
@@ -80,7 +86,11 @@
       // 去除尾部的 padding
       base64Str = base64Str.replace(/==?$/, "");
       // 4 个字符为一组进行处理，多出来的2个或3个字符最后单独处理
-      const totalChars = base64Str.length;
+      let totalChars = base64Str.length;
+      const wow_count = countSubstrings(base64Str, 'WOW');
+      const duang_count = countSubstrings(base64Str, 'Duang');
+      const auv_count = countSubstrings(base64Str, 'AUV');
+      totalChars -= 2 * wow_count - 2 * auv_count - 4 * duang_count;
       const extraChars = totalChars % 4;
       if (extraChars === 1) {
         return false;
@@ -154,13 +164,13 @@
       let text, res;
       switch (true) {
         case isElement(e.target.closest('.encode')):
-          text = input.value;
+          text = input.value.trim();
           res = b64.encode(text);
           output.value = res;
           s.setItem('output', res);
           break;
         case isElement(e.target.closest('.decode')):
-          text = input.value;
+          text = input.value.trim();
           res = b64.decode(text);
           if (res === false) res = '不是曼波字符串';
           output.value = res;
@@ -173,8 +183,8 @@
           s.setItem('output', '');
           break;
         case isElement(e.target.closest('.exchange')):
-          let t = input.value;
-          input.value = output.value;
+          let t = input.value.trim();
+          input.value = output.value.trim();
           output.value = t;
           s.setItem('output', t);
           break;
