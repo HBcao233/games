@@ -130,6 +130,7 @@
     decode(str) {
       const decoder = new TextDecoder("utf-8");
       let buffer = this.base64ToBuffer(str)
+      if (buffer === false) return false;
       return decoder.decode(buffer);
     }
   }
