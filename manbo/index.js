@@ -10,7 +10,7 @@
     /**
      * 代码来自https://github.com/haochuan9421/base64-pro/
      */
-    _lookup = ['奶', '曼', '波', '楼', '上', '的', '欧', '玛', '吉', '利', '莫', '南', '北', '绿', '库', '阿', '西', '噶', '亚', '豆', '马', '鹿', '吧', '哦', '耶', '呵', '叮', '咚', '鸡', '大', '狗', '叫', '哇', '甲', '嗨', '下', '那', '咩', '路', '多', '诺', '基', '录', '呀', '马', '斯', '米', '来', '搞', '核', '算', '嘿', '烤', '盒', '蒜', '鼠', '塞', '哈', '哒', '龙', '~', 'WOW', 'Duang', 'AUV'];
+    _lookup = ['奶', '曼', '波', '楼', '上', '的', '欧', '玛', '吉', '利', '莫', '南', '北', '绿', '库', '阿', '西', '噶', '亚', '豆', '马', '鹿', '吧', '哦', '耶', '呵', '叮', '咚', '鸡', '大', '狗', '叫', '哇', '甲', '嗨', '下', '那', '咩', '路', '多', '诺', '基', '录', '呀', '撸', '斯', '米', '来', '搞', '核', '算', '嘿', '烤', '盒', '蒜', '鼠', '塞', '哈', '哒', '龙', '~', 'WOW', 'Duang', 'AUV'];
     _revLookup;
     _encodeChunkSize = 16383;
     constructor() {
@@ -21,6 +21,14 @@
         },
         {}
       );
+      this._replace = str => {
+        for (const i of this._lookup) {
+          if (i.length > 1) {
+            str = str.replaceAll(i, i.charAt(0))
+          }
+        }
+        return str
+      }
     }
     
     bufferToBase64(value, padding) {
@@ -85,12 +93,9 @@
       }
       // 去除尾部的 padding
       base64Str = base64Str.replace(/==?$/, "");
+      base64Str = this._replace(base64Str)
       // 4 个字符为一组进行处理，多出来的2个或3个字符最后单独处理
       let totalChars = base64Str.length;
-      const wow_count = countSubstrings(base64Str, 'WOW');
-      const duang_count = countSubstrings(base64Str, 'Duang');
-      const auv_count = countSubstrings(base64Str, 'AUV');
-      totalChars -= 2 * wow_count - 2 * auv_count - 4 * duang_count;
       const extraChars = totalChars % 4;
       if (extraChars === 1) {
         return false;
@@ -116,12 +121,14 @@
         view[byteOffset++] = ($24bitsNum >>> 8) & 0b11111111;
         view[byteOffset++] = $24bitsNum & 0b11111111;
       }
-  
+      
       // 处理多出来的2个或3个字符
       if (extraChars === 2) {
         const $8bitNum = (this._revLookup[base64Str.charCodeAt(totalChars - 2)] << 2) | (this._revLookup[base64Str.charCodeAt(totalChars - 1)] >>> 4);
         view[byteOffset++] = $8bitNum;
       } else if (extraChars === 3) {
+        console.log(this._revLookup[base64Str.charCodeAt(totalChars - 3)], this._revLookup[base64Str.charCodeAt(totalChars - 2)], this._revLookup[base64Str.charCodeAt(totalChars - 1)])
+        
         const $16bitNum =
           (this._revLookup[base64Str.charCodeAt(totalChars - 3)] << 10) |
           (this._revLookup[base64Str.charCodeAt(totalChars - 2)] << 4) |
@@ -186,7 +193,8 @@
           let t = input.value.trim();
           input.value = output.value.trim();
           output.value = t;
-          s.setItem('output', t);
+          s.setItem('input', input.value);
+          s.setItem('output', output.value);
           break;
       }
     });
