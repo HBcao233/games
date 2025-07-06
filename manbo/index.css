@@ -1,6 +1,12 @@
 .container {
-  width: 100%;
+  width: 500px;
   height: 100vh;
+  margin: 0 auto;
+}
+@media (max-width: 500px) {
+  .container {
+    width: 100%;
+  }
 }
 .title {
   text-align: center;
@@ -22,8 +28,10 @@
 }
 .controls {
   display: flex;
+  flex-wrap: wrap;
   margin: 5px 0;
   align-items: center;
+  color: #ff8aac;
 }
 .btn {
   width: 70px;
@@ -39,4 +47,31 @@
   margin: 2px;
   padding: 2px 0;
   flex-shrink: 0;
+}
+.checkbox {
+  display: flex;
+  align-items: center;
+}
+#version {
+  appearance: none;
+}
+#version::after {
+  content: '';
+  display: block;
+  width: 23px;
+  height: 23px;
+  border: 2px solid #ff8aac;
+  border-radius: 3px;
+}
+#version:checked::after {
+  content: '\2713';
+  background: #ff8aac;
+  color: #fff;
+  font-size: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#version ~ span {
+  margin-left: 3px;
 }

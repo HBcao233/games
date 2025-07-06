@@ -6,14 +6,87 @@
     }
     return str.split(substring).length - 1;
   }
-  class Base64 {
+  class BaseManbo {
     /**
      * 代码来自https://github.com/haochuan9421/base64-pro/
      */
+    version = 1;
     _lookup = ['奶', '曼', '波', '楼', '上', '的', '欧', '玛', '吉', '利', '莫', '南', '北', '绿', '库', '阿', '西', '噶', '亚', '豆', '马', '鹿', '吧', '哦', '耶', '呵', '叮', '咚', '鸡', '大', '狗', '叫', '哇', '甲', '嗨', '下', '那', '咩', '路', '多', '诺', '基', '录', '呀', '撸', '斯', '米', '来', '搞', '核', '算', '嘿', '烤', '盒', '蒜', '鼠', '塞', '哈', '哒', '龙', '~', 'WOW', 'Duang', 'AUV'];
     _revLookup;
+    _replace;
     _encodeChunkSize = 16383;
-    constructor() {
+    constructor(version) {
+      if (version) this.version = version;
+      if (this.version == 2) {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        this._lookup = [...alphabet].filter((char, i, arr) => arr.indexOf(char) === i && char.charCodeAt(0) < 128);
+        this._dict = {
+          'A': '曼波～',
+          'B': '曼波曼波～',
+          'C': '欧玛吉利曼波～',
+          'D': '哇甲～',
+          'E': '哈基米～',
+          'F': '哈基米莫南北绿豆～',
+          'G': '阿西噶～',
+          'H': '哈压库～',
+          'I': '欧耶～',
+          'J': 'wow～',
+          'K': '阿米诺斯～',
+          'L': '马喽～',
+          'M': '椰果奶龙～',
+          'N': '叮咚鸡～',
+          'O': '哎呦～',
+          'P': '下来～',
+          'Q': '搞盒蒜～',
+          'R': '大狗～',
+          'S': '叫叫叫～',
+          'T': '带兴奋～',
+          'U': '兴奋劲～',
+          'V': '一段～',
+          'W': '带一段～',
+          'X': '袋鼠鸡～',
+          'Y': '粗细～',
+          'Z': '见肛马～',
+          'a': '呵呵呵呵呵～',
+          'b': '米基哈～',
+          'c': '那妹路多～',
+          'd': '马自立～',
+          'e': '压库哈～',
+          'f': '那路～',
+          'g': 'AUV～',
+          'h': '杂布～',
+          'i': '你干嘛～',
+          'j': '阿西巴～',
+          'k': '哈呀',
+          'l': '烤盒蒜～',
+          'm': '耶哒～',
+          'n': 'Duang～',
+          'o': '啊～斯国一～',
+          'p': '就会爆炸～',
+          'q': '何ですか～',
+          'r': '你美鸡鸡～',
+          's': '哈给马森～',
+          't': '起皮～',
+          'u': '再看一眼～',
+          'v': '哈基芦苇～',
+          'w': '芦苇芦苇～',
+          'x': '崩崩崩崩～',
+          'y': '曼曼波～',
+          'z': '哟打～',
+          '0': '哈基米曼波～',
+          '1': '马基里曼波～',
+          '2': '加钠～',
+          '3': '我的只因～',
+          '4': '恰吧～',
+          '5': '再靠近一点～',
+          '6': '鸡你太美～',
+          '7': '离离原上～',
+          '8': '快被融化～',
+          '9': '你美鸡鸡～',
+          '+': '素巴拉西～',
+          '/': '楼上的～',
+        }
+      }
       this._revLookup = this._lookup.reduce(
         (map, char, i) => {
           map[char.charCodeAt(0)] = i;
@@ -93,14 +166,14 @@
       }
       // 去除尾部的 padding
       base64Str = base64Str.replace(/==?$/, "");
-      base64Str = this._replace(base64Str)
+      if (this.version == 1) {
+        base64Str = this._replace(base64Str)
+      }
+      
       // 4 个字符为一组进行处理，多出来的2个或3个字符最后单独处理
       let totalChars = base64Str.length;
       const extraChars = totalChars % 4;
-      if (extraChars === 1) {
-        return false;
-        // throw new Error("invalid Base64 string"); // 编码正确的 Base64 字符串，后面不可能只多出来一个字符
-      }
+      let testStr = base64Str;
       const unit4Chars = totalChars - extraChars;
       // 创建 arrayBuffer，每4个字符需要3个字节，如果最后多出来2个字符额外需要1个字节，如果最后多出来3个字符额外需要2个字节
       const arrayBuffer = new ArrayBuffer((unit4Chars / 4) * 3 + (extraChars === 0 ? 0 : extraChars - 1));
@@ -142,24 +215,55 @@
     encode(str) {
       const encoder = new TextEncoder();
       let buffer = encoder.encode(str);
-      return this.bufferToBase64(buffer);
+      let res = this.bufferToBase64(buffer);
+      if (this.version == 2) {
+        for (const [k, v] of Object.entries(this._dict).reverse()) {
+          res = res.replaceAll(k, v)
+        }
+      }
+      return res;
     }
+    
     decode(str) {
+      if (this.version == 2) {
+        let testStr = str;
+        for (const i of Object.values(this._dict).reverse()) {
+          testStr = testStr.replaceAll(i, '')
+        }
+        if (testStr != '') {
+          return false;
+        }
+        for (const [k, v] of Object.entries(this._dict).reverse()) {
+          str = str.replaceAll(v, k)
+        }
+      } else {
+        let testStr = str;
+        for (const i of this._lookup) {
+          testStr = testStr.replaceAll(i, '')
+        }
+        if (testStr != '') {
+          return false;
+        }
+      }
       const decoder = new TextDecoder("utf-8");
       let buffer = this.base64ToBuffer(str)
       if (buffer === false) return false;
       return decoder.decode(buffer);
     }
+    
   }
   function isElement(obj) {
     return typeof HTMLElement === 'object' ? obj instanceof HTMLElement :
       obj && typeof obj === 'object' && obj !== null && obj.nodeType === 1 && typeof obj.nodeName==='string';
   }
   window.addEventListener('load', () => {
-    const s = window.localStorage;
-    const b64 = new Base64();
+    const b1 = new BaseManbo();
+    const b2 = new BaseManbo(2);
     let input = document.getElementById('input');
     let output = document.getElementById('output');
+    let version = document.getElementById('version');
+    
+    const s = window.localStorage;
     let x;
     if (x = s.getItem('input')) {
       input.value = x;
@@ -167,18 +271,29 @@
     if (x = s.getItem('output')) {
       output.value = x;
     }
+    if (s.getItem('version') == 'false') {
+      version.checked = false
+    }
     document.addEventListener('click', e => {
-      let text, res;
+      let text, res, b;
       switch (true) {
         case isElement(e.target.closest('.encode')):
+          b = b1
+          if (version.checked) {
+            b = b2
+          }
           text = input.value.trim();
-          res = b64.encode(text);
+          res = b.encode(text);
           output.value = res;
           s.setItem('output', res);
           break;
         case isElement(e.target.closest('.decode')):
+          b = b1
+          if (version.checked) {
+            b = b2
+          }
           text = input.value.trim();
-          res = b64.decode(text);
+          res = b.decode(text);
           if (res === false) res = '不是曼波字符串';
           output.value = res;
           s.setItem('output', res);
@@ -204,5 +319,8 @@
     output.addEventListener('input', () => {
       s.setItem('output', output.value);
     });
+    version.addEventListener('input', () => {
+      s.setItem('version', version.checked);
+    })
   })
 })();

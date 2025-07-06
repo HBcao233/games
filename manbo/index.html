@@ -7,8 +7,8 @@
   <meta property="og:image" content="https://i.postimg.cc/h43dBD2F/c.jpg">
   <title>曼波翻译器</title>
   <link rel="icon" href="https://i.postimg.cc/h43dBD2F/c.jpg">
-  <link rel="stylesheet" href="index.css?v=2">
-  <script src="./index.js?v=5"></script>
+  <link rel="stylesheet" href="index.css?v=6">
+  <script src="./index.js?v=6"></script>
 </head>
 
 <body>
@@ -17,10 +17,18 @@
     <div class="form">
       <textarea class="input" id="input" placeholder="需要加密/解密的内容"></textarea>
       <div class="controls">
-        <button class="btn encode" type="button">加密↓</button>
-        <button class="btn decode" type="button">解密↓</button>
-        <button class="btn clear" type="button">清空✕</button>
-        <button class="btn exchange" type="button">交换<span style="font-size: 20px">&#x2195;</spam></button>
+        <div>
+          <button class="btn encode" type="button">加密↓</button>
+          <button class="btn decode" type="button">解密↓</button>
+        </div>
+        <label class="checkbox" style="width: 70px; height: 30px">
+          <input id="version" type="checkbox" checked="checked">
+          <span>2.0</span>
+        </label>
+        <div>
+          <button class="btn clear" type="button">清空✕</button>
+          <button class="btn exchange" type="button">交换<span style="font-size: 20px">&#x2195;</spam></button>
+        </div>
       </div>
       <textarea class="input" id="output" placeholder="结果"></textarea>
     </div>
