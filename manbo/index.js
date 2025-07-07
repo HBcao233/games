@@ -57,14 +57,14 @@
           'h': '杂布～',
           'i': '你干嘛～',
           'j': '阿西巴～',
-          'k': '哈呀',
+          'k': '哈呀～',
           'l': '烤盒蒜～',
           'm': '耶哒～',
           'n': 'Duang～',
           'o': '啊～斯国一～',
           'p': '就会爆炸～',
           'q': '何ですか～',
-          'r': '你美鸡鸡～',
+          'r': 'oiiaioiiiai～',
           's': '哈给马森～',
           't': '起皮～',
           'u': '再看一眼～',
@@ -85,7 +85,10 @@
           '9': '你美鸡鸡～',
           '+': '素巴拉西～',
           '/': '楼上的～',
-        }
+        };
+        this._tcid = Object.fromEntries(
+          Object.entries(this._dict).map(([key, value]) => [value, key])
+        );
       }
       this._revLookup = this._lookup.reduce(
         (map, char, i) => {
@@ -173,7 +176,6 @@
       // 4 个字符为一组进行处理，多出来的2个或3个字符最后单独处理
       let totalChars = base64Str.length;
       const extraChars = totalChars % 4;
-      let testStr = base64Str;
       const unit4Chars = totalChars - extraChars;
       // 创建 arrayBuffer，每4个字符需要3个字节，如果最后多出来2个字符额外需要1个字节，如果最后多出来3个字符额外需要2个字节
       const arrayBuffer = new ArrayBuffer((unit4Chars / 4) * 3 + (extraChars === 0 ? 0 : extraChars - 1));
@@ -200,8 +202,6 @@
         const $8bitNum = (this._revLookup[base64Str.charCodeAt(totalChars - 2)] << 2) | (this._revLookup[base64Str.charCodeAt(totalChars - 1)] >>> 4);
         view[byteOffset++] = $8bitNum;
       } else if (extraChars === 3) {
-        console.log(this._revLookup[base64Str.charCodeAt(totalChars - 3)], this._revLookup[base64Str.charCodeAt(totalChars - 2)], this._revLookup[base64Str.charCodeAt(totalChars - 1)])
-        
         const $16bitNum =
           (this._revLookup[base64Str.charCodeAt(totalChars - 3)] << 10) |
           (this._revLookup[base64Str.charCodeAt(totalChars - 2)] << 4) |
@@ -217,8 +217,13 @@
       let buffer = encoder.encode(str);
       let res = this.bufferToBase64(buffer);
       if (this.version == 2) {
-        for (const [k, v] of Object.entries(this._dict).reverse()) {
+        const arr = ['wow～', 'AUV～', 'Duang～'];
+        for (const [k, v] of Object.entries(this._dict)) {
+          if (arr.includes(v)) continue;
           res = res.replaceAll(k, v)
+        }
+        for (const i of arr) {
+          res = res.replaceAll(this._tcid[i], i)
         }
       }
       return res;
@@ -227,13 +232,13 @@
     decode(str) {
       if (this.version == 2) {
         let testStr = str;
-        for (const i of Object.values(this._dict).reverse()) {
+        for (const i of Object.values(this._dict).sort((a, b) => b.length - a.length)) {
           testStr = testStr.replaceAll(i, '')
         }
         if (testStr != '') {
           return false;
         }
-        for (const [k, v] of Object.entries(this._dict).reverse()) {
+        for (const [k, v] of Object.entries(this._dict).sort((a, b) => b[1].length - a[1].length)) {
           str = str.replaceAll(v, k)
         }
       } else {
@@ -250,12 +255,14 @@
       if (buffer === false) return false;
       return decoder.decode(buffer);
     }
-    
   }
+  
   function isElement(obj) {
     return typeof HTMLElement === 'object' ? obj instanceof HTMLElement :
       obj && typeof obj === 'object' && obj !== null && obj.nodeType === 1 && typeof obj.nodeName==='string';
   }
+  
+  
   window.addEventListener('load', () => {
     const b1 = new BaseManbo();
     const b2 = new BaseManbo(2);
