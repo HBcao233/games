@@ -1,0 +1,68 @@
+html, 
+body {
+  padding: 0;
+  margin: 0;
+}
+.container {
+  position: relative;
+}
+@media screen and (max-width: 500px) {
+  body,
+  canvas {
+    width: 100%;
+  }
+}
+
+.controls_warp {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.controls {
+  width: fit-content;
+  display: flex;
+}
+.controls .left {
+  
+}
+.controls > .right {
+  margin-left: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.controls .row {
+  display: flex;
+}
+.btn {
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+  padding: 2px;
+  background: #fff;
+  color: #ff8aac;
+  border: 2px solid #ff8aac;
+  border-radius: 5px;
+  outline: none;
+  box-shadow: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.btn svg {
+  width: 100%;
+  height: 100%;
+  fill: #ff8aac;
+}
+.btn.left svg {
+  transform: rotate(-90deg);
+}
+.btn.right svg {
+  transform: rotate(90deg);
+}
+.btn.down svg {
+  transform: rotate(180deg);
+}
