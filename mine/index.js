@@ -128,6 +128,8 @@
     timer;
     opened_count = 0;
     flag_count = 0;
+    
+    r18 = 0;
 
     constructor(containerSelector, row, column, mineCount) {
       if (Game.instance) {
@@ -204,13 +206,28 @@
       }
       
     }
-
+    setBackground() {
+      // 随机涩图
+      fetch('https://api.lolicon.app/setu/v2?r18=' + this.r18, {
+        mode: 'no-cors',
+        headers: {
+          'host': 'https://api.lolicon.app',
+          'referer': 'https://api.lolicon.app'
+        }
+      }).then(r => {
+        console.log(r)
+        return r.json()
+      }).then(res => {
+        console.log(res)
+      })
+    }
     /**
      * 初始化
      */
     init() {
       this.mineLeft.innerText = this.mineCount;
       this.spawnTable();
+      this.setBackground();
 
       document.addEventListener('click', (e) => {
         const t = e.target;

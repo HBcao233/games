@@ -18,6 +18,10 @@
     content_class: '',
     close_btn_class: 'popup_close_box',
   });
+  window.addEventListener('load', () => {
+    console.log('a')
+  })
+  console.log(document.querySelector('.forget-pass'))
   document.querySelector('.forget-pass').addEventListener('click', () => {
     forget_pass_popup.show()
   })
