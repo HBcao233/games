@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一生一世数字论证器</title>
+  <meta name="title" itemprop="name" property="og:title" name="title" content="一生一世数字论证器">
+  <meta name="description" itemprop="description" property="og:description" content="数字爱你化工具">
+  <meta name="image" property="og:image" content="https://i.postimg.cc/h43dBD2F/c.jpg">
+  <meta name="keyword" content="一生一世生成器,5201314">
+  
+  <link rel="icon" href="https://i.postimg.cc/h43dBD2F/c.jpg">
+  <link rel="stylesheet" href="index.css">
+  <script src="love.js"></script>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  $('#input').addEventListener('input', () => {
+    const num = $('#input').value === '' ? '' : Number($('#input').value);
+    $('#output').innerHTML = num + ' = <big>' + love(num) + '</big>';
+    if (num) $('html').classList.add('active');
+    else $('html').classList.remove('active');
+  });
+});
+  </script>
+</head>
+
+<body>
+  <input id="input" placeholder="输入任意数字" type="number">
+  <div id="output">=</div>
+
+  <footer>
+    <p>复制请保持开源并保留引用信息</p>
+    <a href="https://github.com/HBcao233/games">GitHub</a>
+    <a href="https://github.com/itorr/homo">改进自:神奇海螺</a>
+  </footer>
+</body>
+
+</html>

@@ -1,18 +1,16 @@
 .game_table {
-  border-width: 4px;
-  position: absolute;
 }
 
 .game_table .cell.bright {
-  border-right: 3px solid #000;
+  border-right-color: #fc0ed3;
 }
 
 .game_table .cell.bbottom {
-  border-bottom: 3px solid #000;
+  border-bottom-color: #fc0ed3;
 }
 
 .game_table .cell.broken {
-  background-color: #000;
+  background-color: #fc0ed3;
 }
 
 .game_table .cell.not::after {
@@ -32,42 +30,36 @@
 
 .finish_controls {
   margin: 5px;
-  display: none;
+
   border: 2px solid #ff8aac;
 }
-.finish_controls.on {
-  display: block;
-}
-.finish_controls .group {
-  width: 100%;
+.level_control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   color: #ff8aac;
   margin: 2px;
   padding: 2px 5px;
-  border-bottom: 1px solid #eee;
 }
-.finish_controls .levels {
-  display: flex;
+.btn {
+  display: block;
+  margin: 0 5px;
 }
-.finish_controls .btn {
+.level {
+  display: block;
   font-size: 20px;
   margin: 2px;
-  padding: 2px 0;
-  width: 70px;
-  flex-shrink: 0;
+  padding: 2px;
+  color: #ff8aac;
+  background: transparent;
+  border: none;
+  outline: none;
 }
-.finish_controls .btn.win {
-  border-color: green;
+
+details {
+  color: #ff8aac;
 }
-.finish_controls .btn.playing {
-  border-color: #ff7080;
-}
-.finish_controls .level_control {
-  display: flex;
-}
-.finish_controls .level_control .btn {
-  width: fit-content;
-  padding: 3px 5px;
-}
+
 
 .game_table.show-numbers .cell div.numbers1 {
   display: none;

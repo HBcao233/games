@@ -105,7 +105,7 @@ a:active {
   width: calc(100% - 60px);
   background-color: #f6a2ff;
   border-radius: 5px;
-  background-repeat: 0;
+  background-repeat: no-repeat;
   background-position: 0;
   background-size: cover;
   border-spacing: 0;
@@ -125,11 +125,12 @@ a:active {
   position: relative;
   background-color: #FF8AAC;
   margin: 0;
-  border: 1px solid #ff7080;
+  border: 2px solid transparent;
   user-select: none !important;
   transition: all .3s;
   font-size: 28px;
   -webkit-text-stroke: .5px #ff8aac;
+  border-radius: 5px;
 }
 
 .game_table .cell:hover {
