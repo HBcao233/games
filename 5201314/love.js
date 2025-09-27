@@ -93,7 +93,7 @@ const getNums = () => {
   const results = {};
   
   // 生成所有可能的运算符组合（6个位置）
-  function generateOperatorCombinations() {
+  function genCombinations() {
     const combinations = [];
     
     function backtrack(current, depth) {
@@ -118,9 +118,13 @@ const getNums = () => {
     return combinations;
   }
   
-  const operatorCombinations = generateOperatorCombinations();
+  const combinations = genCombinations();
   
-  for (const ops of operatorCombinations) {
+  function countChar(str, char) {
+    return str.split(char).length - 1;
+  }
+  
+  for (const ops of combinations) {
     // 构建表达式字符串
     let expression = '';
     for (let i = 0; i < digits.length; i++) {
@@ -137,6 +141,13 @@ const getNums = () => {
       // 如果结果还没有被记录，则添加
       if (!(result in results)) {
         results[result] = expression;
+      } else {
+        if (
+          (!/([+\-*])0(\d)/.test(expression))
+          && countChar(expression, '*') < countChar(results[result], '*')
+        ) {
+          results[result] = expression;
+        }
       }
     } catch (error) {
       // 忽略无效表达式
@@ -145,7 +156,7 @@ const getNums = () => {
   }
   
   // 处理负号开头的情况
-  for (const ops of operatorCombinations) {
+  for (const ops of combinations) {
     let expression = '-';
     for (let i = 0; i < digits.length; i++) {
       expression += digits[i];
@@ -167,7 +178,8 @@ const getNums = () => {
   return results;
 }
   
-const Nums = getNums()
+const Nums = getNums();
+window['Nums'] = Nums;
 const numsReversed = Object.keys(Nums).map(x => parseInt(x)).sort((a, b) => b-a);
 
 const getMinDiv = (num) => {
