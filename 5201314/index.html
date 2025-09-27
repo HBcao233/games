@@ -12,12 +12,12 @@
   
   <link rel="icon" href="https://i.postimg.cc/h43dBD2F/c.jpg">
   <link rel="stylesheet" href="index.css">
-  <script src="love.js"></script>
+  <script src="iLoveCulator.js"></script>
   <script>
 document.addEventListener('DOMContentLoaded', () => {
   $('#input').addEventListener('input', () => {
     const num = $('#input').value === '' ? '' : Number($('#input').value);
-    $('#output').innerHTML = num + ' = <big>' + love(num) + '</big>';
+    $('#output').innerHTML = num + ' = <big>' + iLoveCulator(num) + '</big>';
     if (num) $('html').classList.add('active');
     else $('html').classList.remove('active');
   });

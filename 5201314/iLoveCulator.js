@@ -179,18 +179,42 @@ const getNums = () => {
 }
   
 const Nums = getNums();
-window['Nums'] = Nums;
-const numsReversed = Object.keys(Nums).map(x => parseInt(x)).sort((a, b) => b-a);
+const numsReversed = Object.keys(Nums).sort((a, b) => b - a);
 
-const getMinDiv = (num) => {
-  if (num < 0) for (let i = numsReversed.length - 1; i >= 0; i--)
-    if (num <= numsReversed[i])
-      return numsReversed[i];
-  for (let i = 0; i < numsReversed.length; i++)
-    if (num >= numsReversed[i])
-      return numsReversed[i];
+const getMinDiv = (n) => {
+  if (n === 0) return 0;
+  let left, right, result;
+  if (n > 0) {
+    // 找小于n的最大值
+    left = 0;
+    right = numsReversed.length - 1;
+    result = null;
+    while (left <= right) {
+      let mid = Math.floor((left + right) / 2);
+      if (numsReversed[mid] <= n) {
+        result = numsReversed[mid];
+        right = mid - 1; // 继续在左半部分找更大的值
+      } else {
+        left = mid + 1; // 在右半部分找
+      }
+    }
+    return result;
+  } 
+  // 找大于n的最小值
+  left = 0;
+  right = numsReversed.length - 1;
+  result = null;
+  while (left <= right) {
+    let mid = Math.floor((left + right) / 2);
+    if (numsReversed[mid] >= n) {
+      result = numsReversed[mid];
+      left = mid + 1; // 继续在右半部分找更小的值
+    } else {
+      right = mid - 1; // 在左半部分找
+    }
+  }
+  return result;
 }
-const isDotRegex = /\.(\d+?)0{0,}$/
 
 const converter = (num) => {
   if (typeof num !== "number")
@@ -202,14 +226,14 @@ const converter = (num) => {
   if (!Number.isInteger(num)) {
     // abs(num) is definitely smaller than 2**51
     // rescale
-    const n = num.toFixed(16).match(isDotRegex)[1].length
+    const n = num.toFixed(16).match(/\.(\d+?)0{0,}$/)[1].length
     return `(${converter(num * Math.pow(10, n))})/(10)^(${n})`
   }
 
-  if (Nums[num])
-    return String(num)
+  if (Nums[num]) 
+    return String(num);
 
-  const div = getMinDiv(num)
+  const div = getMinDiv(num);
   return (`${div}*(${converter(Math.floor(num / div))})+` +
     `(${converter(num % div)})`).replace(/\*\(1\)|\+\(0\)$/g, "")
 }
@@ -233,18 +257,18 @@ const formater = (expr) => {
   return expr
 }
 
-const love = (num) => formater(converter(num));
+const iLoveCulator = (num) => formater(converter(num));
 
 if ("object" == typeof exports && "object" == typeof module) {
-  module.exports = love;
+  module.exports = iLoveCulator;
 } else {
   if ("function" == typeof define && define.amd) {
-    define("love", [], love)
+    define("iLoveCulator", [], iLoveCulator)
   } else {
     if ("object" == typeof exports) {
-      exports.love = love;
+      exports.iLoveCulator = iLoveCulator;
     } else {
-      window.love = love;
+      window.iLoveCulator = iLoveCulator;
     }
   }
 }
